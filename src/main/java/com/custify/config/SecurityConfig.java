@@ -1,39 +1,37 @@
 package com.custify.config;
 
-import com.custify.security.RoleBasedAuthenticationSuccessHandler;
+import com.custify.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
 
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http,
-            RoleBasedAuthenticationSuccessHandler successHandler) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/css/**").permitAll()
-                        .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/commercial").hasRole("COMMERCIAL")
-                        .requestMatchers("/dashboard").authenticated()
+                        .requestMatchers("/api/auth/login", "/api/auth/logout").permitAll()
+                        .requestMatchers("/css/**").permitAll()
                         .anyRequest().authenticated())
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .successHandler(successHandler)
-                        .failureUrl("/login?error")
-                        .permitAll())
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll())
-                .httpBasic(Customizer.withDefaults());
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -41,5 +39,10 @@ public class SecurityConfig {
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }

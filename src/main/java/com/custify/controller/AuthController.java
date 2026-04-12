@@ -1,49 +1,39 @@
 package com.custify.controller;
 
-import com.custify.model.Utilisateur;
-import com.custify.repository.UtilisateurRepository;
-import java.security.Principal;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import com.custify.model.LoginRequest;
+import com.custify.model.LoginResponse;
+import com.custify.security.JwtUtil;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
+@RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UtilisateurRepository utilisateurRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(UtilisateurRepository utilisateurRepository) {
-        this.utilisateurRepository = utilisateurRepository;
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
-    @GetMapping("/")
-    public String home() {
-        return "redirect:/dashboard";
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+        );
+
+        String token = jwtUtil.generateToken(authentication.getName());
+        return ResponseEntity.ok(new LoginResponse(token, "Login successful"));
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
-
-    @GetMapping("/dashboard")
-    public String dashboard(Model model, Principal principal) {
-        Utilisateur utilisateur = utilisateurRepository.findByEmail(principal.getName()).orElseThrow();
-        model.addAttribute("utilisateur", utilisateur);
-        return "dashboard";
-    }
-
-    @GetMapping("/admin")
-    public String adminSpace(Model model, Principal principal) {
-        Utilisateur utilisateur = utilisateurRepository.findByEmail(principal.getName()).orElseThrow();
-        model.addAttribute("utilisateur", utilisateur);
-        return "admin-space";
-    }
-
-    @GetMapping("/commercial")
-    public String commercialSpace(Model model, Principal principal) {
-        Utilisateur utilisateur = utilisateurRepository.findByEmail(principal.getName()).orElseThrow();
-        model.addAttribute("utilisateur", utilisateur);
-        return "commercial-space";
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        // Since JWT is stateless, logout is handled client-side by discarding the token
+        return ResponseEntity.ok("Logout successful");
     }
 }
