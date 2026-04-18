@@ -38,4 +38,9 @@ public class AuthController {
         model.addAttribute("stats", stats);
         return "dashboard";
     }
+
+    @GetMapping("/access-denied")
+    public String accessDenied() {
+        return "access-denied";
+    }
 }

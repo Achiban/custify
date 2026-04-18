@@ -45,4 +45,20 @@ public class UtilisateurService {
                 .map(UtilisateurResponse::from)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public UtilisateurResponse trouverParId(Long id) {
+        Utilisateur utilisateur = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID: " + id));
+        return UtilisateurResponse.from(utilisateur);
+    }
+
+    @Transactional
+    public UtilisateurResponse modifierRole(Long id, com.custify.model.enums.Role nouveauRole) {
+        Utilisateur utilisateur = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID: " + id));
+
+        utilisateur.setRole(nouveauRole);
+        return UtilisateurResponse.from(utilisateurRepository.save(utilisateur));
+    }
 }

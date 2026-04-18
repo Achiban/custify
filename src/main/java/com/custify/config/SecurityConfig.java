@@ -18,9 +18,23 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        // Ressources statiques accessibles à tous
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/login").permitAll()
+
+                        // Gestion des utilisateurs - ADMIN uniquement
                         .requestMatchers("/users/**").hasRole("ADMIN")
+
+                        // Dashboard accessible à tous les utilisateurs authentifiés
+                        .requestMatchers("/dashboard").hasAnyRole("ADMIN", "COMMERCIAL")
+
+                        // Gestion clients, prospects, opportunités, interactions - ADMIN et COMMERCIAL
+                        .requestMatchers("/clients/**").hasAnyRole("ADMIN", "COMMERCIAL")
+                        .requestMatchers("/prospects/**").hasAnyRole("ADMIN", "COMMERCIAL")
+                        .requestMatchers("/opportunites/**").hasAnyRole("ADMIN", "COMMERCIAL")
+                        .requestMatchers("/interactions/**").hasAnyRole("ADMIN", "COMMERCIAL")
+
+                        // Toute autre requête nécessite une authentification
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -35,7 +49,9 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login?logout=true")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
-                        .permitAll());
+                        .permitAll())
+                .exceptionHandling(exception -> exception
+                        .accessDeniedPage("/access-denied"));
 
         return http.build();
     }

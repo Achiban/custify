@@ -103,7 +103,7 @@
         <div class="sidebar-brand">Custify Admin</div>
         <ul class="sidebar-nav">
             <li><a href="/dashboard">Dashboard</a></li>
-            <li><a href="/users">Utilisateurs</a></li>
+            <li sec:authorize="hasRole('ADMIN')"><a href="/users">Utilisateurs</a></li>
             <li><a href="/clients">Clients</a></li>
             <li><a href="/prospects">Prospects</a></li>
             <li><a href="/opportunites">Opportunités</a></li>
