@@ -132,9 +132,24 @@
             font-weight: 600;
             transition: background-color 0.3s;
             display: inline-block;
+            margin-right: 5px;
         }
         .btn-edit:hover {
             background-color: #e67e22;
+        }
+        .btn-delete {
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-delete:hover {
+            background-color: #c0392b;
         }
     </style>
 </head>
@@ -182,9 +197,15 @@
                         <td th:text="${utilisateur.email}">john@example.com</td>
                         <td th:text="${utilisateur.role}">USER</td>
                         <td>
-                            <a th:href="@{/users/{id}/modifier-role(id=${utilisateur.id})}" class="btn-edit">
-                                Modifier le rôle
+                            <a th:href="@{/users/{id}/modifier(id=${utilisateur.id})}" class="btn-edit">
+                                Modifier
                             </a>
+                            <a th:href="@{/users/{id}/modifier-role(id=${utilisateur.id})}" class="btn-edit">
+                                Modifier rôle
+                            </a>
+                            <form th:action="@{/users/{id}/supprimer(id=${utilisateur.id})}" method="post" style="display: inline; margin: 0;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur?');">
+                                <button type="submit" class="btn-delete">Supprimer</button>
+                            </form>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(utilisateurs)}">

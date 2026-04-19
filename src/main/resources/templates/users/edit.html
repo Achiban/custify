@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier un utilisateur - Custify</title>
+    <style>
+        body {
+            background-color: #1e2a3a;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+        .sidebar {
+            background-color: #16212e;
+            min-height: 100vh;
+            padding: 20px 0;
+            position: fixed;
+            width: 200px;
+        }
+        .sidebar-brand {
+            color: #4fc3f7;
+            font-weight: bold;
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-nav li {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .sidebar-nav li:hover {
+            background-color: #1e2a3a;
+        }
+        .sidebar-nav li a {
+            color: #b0bec5;
+            text-decoration: none;
+        }
+        .logout-btn {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            cursor: pointer;
+        }
+        .main-content {
+            margin-left: 200px;
+            padding: 30px;
+        }
+        .header {
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #4fc3f7;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        .form-container {
+            background-color: #263645;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 600px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            color: #b0bec5;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background-color: #1e2a3a;
+            border: 1px solid #3a4a5c;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4fc3f7;
+        }
+        .form-group input.is-invalid {
+            border-color: #e74c3c;
+        }
+        .info-display {
+            background-color: #1e2a3a;
+            padding: 12px;
+            border: 1px solid #3a4a5c;
+            border-radius: 5px;
+            color: #b0bec5;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .btn-primary {
+            background-color: #4fc3f7;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #3ab0e0;
+        }
+        .btn-secondary {
+            background-color: #3a4a5c;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            display: inline-block;
+        }
+        .btn-secondary:hover {
+            background-color: #4a5a6c;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">Custify Admin</div>
+        <ul class="sidebar-nav">
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li sec:authorize="hasRole('ADMIN')"><a href="/users">Utilisateurs</a></li>
+            <li><a href="/clients">Clients</a></li>
+            <li><a href="/prospects">Prospects</a></li>
+            <li><a href="/opportunites">Opportunités</a></li>
+            <li><a href="/interactions">Interactions</a></li>
+        </ul>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Déconnexion</button>
+        </form>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Modifier un utilisateur</h1>
+        </div>
+
+        <div class="form-container">
+            <form th:action="@{/users/{id}/modifier(id=${utilisateur.id})}" th:object="${modifierUtilisateurRequest}" method="post">
+                <div class="form-group">
+                    <label>ID</label>
+                    <div class="info-display" th:text="${utilisateur.id}">1</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nom">Nom</label>
+                    <input type="text" id="nom" th:field="*{nom}" th:errorclass="is-invalid" required>
+                    <div class="error-message" th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}">Name error</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" th:field="*{email}" th:errorclass="is-invalid" required>
+                    <div class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email error</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Rôle</label>
+                    <div class="info-display" th:text="${utilisateur.role}">COMMERCIAL</div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Modifier</button>
+                    <a href="/users" class="btn-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

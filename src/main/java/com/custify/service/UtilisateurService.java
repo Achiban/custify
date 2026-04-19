@@ -1,6 +1,7 @@
 package com.custify.service;
 
 import com.custify.dto.CreerUtilisateurRequest;
+import com.custify.dto.ModifierUtilisateurRequest;
 import com.custify.dto.UtilisateurResponse;
 import com.custify.exception.EmailDejaUtiliseException;
 import com.custify.model.Utilisateur;
@@ -60,5 +61,30 @@ public class UtilisateurService {
 
         utilisateur.setRole(nouveauRole);
         return UtilisateurResponse.from(utilisateurRepository.save(utilisateur));
+    }
+
+    @Transactional
+    public UtilisateurResponse modifier(Long id, ModifierUtilisateurRequest requete) {
+        Utilisateur utilisateur = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID: " + id));
+
+        String nouvelEmail = requete.getEmail().trim().toLowerCase();
+
+        // Vérifier si l'email est différent et déjà utilisé
+        if (!utilisateur.getEmail().equals(nouvelEmail) && utilisateurRepository.existsByEmail(nouvelEmail)) {
+            throw new EmailDejaUtiliseException(nouvelEmail);
+        }
+
+        utilisateur.setNom(requete.getNom().trim());
+        utilisateur.setEmail(nouvelEmail);
+
+        return UtilisateurResponse.from(utilisateurRepository.save(utilisateur));
+    }
+
+    @Transactional
+    public void supprimer(Long id) {
+        Utilisateur utilisateur = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID: " + id));
+        utilisateurRepository.delete(utilisateur);
     }
 }
