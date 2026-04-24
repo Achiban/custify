@@ -1,9 +1,12 @@
 package com.custify.repository;
 
-import com.custify.model.Interaction;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.custify.model.Interaction;
+
 public interface InteractionRepository extends JpaRepository<Interaction, Long> {
+
+    List<Interaction> findByClientId(Long clientId);
 }

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Clients - Custify</title>
+
+    <style>
+        body {
+            background-color: #1e2a3a;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .sidebar {
+            position: fixed;
+            width: 200px;
+            height: 100vh;
+            background-color: #16212e;
+            padding: 20px;
+        }
+
+        .main {
+            margin-left: 220px;
+            padding: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #263645;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #3a4a5c;
+        }
+
+        th {
+            color: #4fc3f7;
+        }
+
+        a {
+            color: #4fc3f7;
+            text-decoration: none;
+        }
+
+        .btn {
+            background-color: #4fc3f7;
+            padding: 8px 12px;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h3>Custify</h3>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/clients/list">Clients</a>
+</div>
+
+<div class="main">
+
+    <h2>Clients</h2>
+
+    <a class="btn" href="/clients/new">+ Ajouter Client</a>
+
+    <br><br>
+
+    <table>
+        <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Entreprise</th>
+            <th>Actions</th>
+        </tr>
+
+        <tr th:each="c : ${clients}">
+            <td th:text="${c.nom}"></td>
+            <td th:text="${c.email}"></td>
+            <td th:text="${c.telephone}"></td>
+            <td th:text="${c.entreprise}"></td>
+
+            <td>
+                <a th:href="@{'/clients/details/' + ${c.id}}">Voir</a> |
+                <a th:href="@{'/clients/edit/' + ${c.id}}">Modifier</a> |
+                <a th:href="@{'/clients/delete/' + ${c.id}}">Supprimer</a>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+</body>
+</html>

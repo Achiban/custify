@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Détails Client</title>
+</head>
+
+<body style="background:#1e2a3a;color:white;font-family:Segoe UI;">
+
+<div style="padding:30px;">
+
+    <h2>Détails Client</h2>
+
+    <p><b>Nom:</b> <span th:text="${client.nom}"></span></p>
+    <p><b>Email:</b> <span th:text="${client.email}"></span></p>
+    <p><b>Téléphone:</b> <span th:text="${client.telephone}"></span></p>
+    <p><b>Entreprise:</b> <span th:text="${client.entreprise}"></span></p>
+    <p><b>Date:</b> <span th:text="${client.dateCreation}"></span></p>
+
+    <h3>Historique</h3>
+
+    <div th:each="i : ${interactions}">
+        <p th:text="${i.typeInteraction}"></p>
+        <p th:text="${i.date}"></p>
+        <hr>
+    </div>
+
+    <a href="/clients/list" style="color:#4fc3f7;">Back</a>
+
+</div>
+
+</body>
+</html>
