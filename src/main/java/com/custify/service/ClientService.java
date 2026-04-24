@@ -53,4 +53,44 @@ public class ClientService {
     public void deleteClient(Long id) {
         clientRepository.deleteById(id);
     }
+    
+    // SEARCH - Global search across all fields
+    public List<Client> searchClients(Utilisateur user, String searchTerm) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return getClientsByUser(user);
+        }
+        return clientRepository.searchClients(user.getId(), searchTerm.trim());
+    }
+    
+    // FILTER - By name
+    public List<Client> filterByNom(Utilisateur user, String nom) {
+        if (nom == null || nom.trim().isEmpty()) {
+            return getClientsByUser(user);
+        }
+        return clientRepository.findByUtilisateurIdAndNomContainingIgnoreCase(user.getId(), nom.trim());
+    }
+    
+    // FILTER - By email
+    public List<Client> filterByEmail(Utilisateur user, String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return getClientsByUser(user);
+        }
+        return clientRepository.findByUtilisateurIdAndEmailContainingIgnoreCase(user.getId(), email.trim());
+    }
+    
+    // FILTER - By company
+    public List<Client> filterByEntreprise(Utilisateur user, String entreprise) {
+        if (entreprise == null || entreprise.trim().isEmpty()) {
+            return getClientsByUser(user);
+        }
+        return clientRepository.findByUtilisateurIdAndEntrepriseContainingIgnoreCase(user.getId(), entreprise.trim());
+    }
+    
+    // FILTER - By phone
+    public List<Client> filterByTelephone(Utilisateur user, String telephone) {
+        if (telephone == null || telephone.trim().isEmpty()) {
+            return getClientsByUser(user);
+        }
+        return clientRepository.findByUtilisateurIdAndTelephoneContainingIgnoreCase(user.getId(), telephone.trim());
+    }
 }

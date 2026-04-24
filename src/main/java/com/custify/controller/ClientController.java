@@ -16,6 +16,7 @@ import com.custify.model.Utilisateur;
 import com.custify.repository.InteractionRepository;
 import com.custify.repository.UtilisateurRepository;
 import com.custify.service.ClientService;
+import java.util.List;
 
 @Controller
 @RequestMapping("/clients")
@@ -53,13 +54,43 @@ public class ClientController {
         return "clients/list";
     }
 
-    // LIST CLIENTS (US-04 + US-05)
+    // LIST CLIENTS (US-04 + US-05) with search and filter
     @GetMapping("/list")
-    public String listClients(Model model) {
+    public String listClients(
+            Model model,
+            String search,
+            String filterNom,
+            String filterEmail,
+            String filterEntreprise,
+            String filterTelephone) {
 
         Utilisateur user = getLoggedUser();
-
-        model.addAttribute("clients", clientService.getClientsByUser(user));
+        
+        List<Client> clients;
+        
+        // Apply filters based on parameters
+        if (search != null && !search.trim().isEmpty()) {
+            // Global search
+            clients = clientService.searchClients(user, search);
+            model.addAttribute("searchTerm", search);
+        } else if (filterNom != null && !filterNom.trim().isEmpty()) {
+            clients = clientService.filterByNom(user, filterNom);
+            model.addAttribute("filterNom", filterNom);
+        } else if (filterEmail != null && !filterEmail.trim().isEmpty()) {
+            clients = clientService.filterByEmail(user, filterEmail);
+            model.addAttribute("filterEmail", filterEmail);
+        } else if (filterEntreprise != null && !filterEntreprise.trim().isEmpty()) {
+            clients = clientService.filterByEntreprise(user, filterEntreprise);
+            model.addAttribute("filterEntreprise", filterEntreprise);
+        } else if (filterTelephone != null && !filterTelephone.trim().isEmpty()) {
+            clients = clientService.filterByTelephone(user, filterTelephone);
+            model.addAttribute("filterTelephone", filterTelephone);
+        } else {
+            // No filter applied
+            clients = clientService.getClientsByUser(user);
+        }
+        
+        model.addAttribute("clients", clients);
 
         return "clients/list";
     }
