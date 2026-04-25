@@ -2,30 +2,184 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Détails Client</title>
+    <title>Détails Client - Custify</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: #1e2a3a;
+            color: #fff;
+        }
+
+        .sidebar {
+            background-color: #16212e;
+            min-height: 100vh;
+            padding: 20px 0;
+            position: fixed;
+            width: 200px;
+        }
+        .sidebar-brand {
+            color: #4fc3f7;
+            font-weight: bold;
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-nav li {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .sidebar-nav li:hover {
+            background-color: #1e2a3a;
+        }
+        .sidebar-nav li a {
+            color: #b0bec5;
+            text-decoration: none;
+        }
+        .logout-btn {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            cursor: pointer;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #b0bec5;
+            text-decoration: none;
+            padding: 10px 0;
+        }
+
+        .sidebar a:hover {
+            color: #4fc3f7;
+        }
+
+        .main {
+            margin-left: 220px;
+            padding: 30px;
+        }
+
+        .card {
+            background-color: #263645;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 700px;
+        }
+
+        h2 {
+            color: #4fc3f7;
+        }
+
+        .info {
+            margin: 10px 0;
+            padding: 8px;
+            background: #1e2a3a;
+            border-radius: 5px;
+        }
+
+        .section-title {
+            margin-top: 25px;
+            color: #4fc3f7;
+        }
+
+        .interaction {
+            background: #1e2a3a;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .btn-back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background: #4fc3f7;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .btn-back:hover {
+            background: #3ab0e0;
+        }
+    </style>
 </head>
 
-<body style="background:#1e2a3a;color:white;font-family:Segoe UI;">
+<body>
 
-<div style="padding:30px;">
+<!-- Sidebar -->
+<div class="sidebar">
+        <div class="sidebar-brand">Custify  
+            <span sec:authorize="hasRole('ADMIN')">ADMIN</span>
+            <span sec:authorize="hasRole('COMMERCIAL')">COMMERCIAL</span>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="/dashboard">Dashboard</a></li>
 
-    <h2>Détails Client</h2>
+            <li sec:authorize="hasRole('ADMIN')">
+                <a href="/users">Utilisateurs</a>
+            </li>
 
-    <p><b>Nom:</b> <span th:text="${client.nom}"></span></p>
-    <p><b>Email:</b> <span th:text="${client.email}"></span></p>
-    <p><b>Téléphone:</b> <span th:text="${client.telephone}"></span></p>
-    <p><b>Entreprise:</b> <span th:text="${client.entreprise}"></span></p>
-    <p><b>Date:</b> <span th:text="${client.dateCreation}"></span></p>
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/clients">Clients</a>
+            </li>
 
-    <h3>Historique</h3>
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/prospects">Prospects</a>
+            </li>
 
-    <div th:each="i : ${interactions}">
-        <p th:text="${i.typeInteraction}"></p>
-        <p th:text="${i.date}"></p>
-        <hr>
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/opportunites">Opportunités</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/interactions">Interactions</a>
+            </li>
+        </ul>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Déconnexion</button>
+        </form>
     </div>
 
-    <a href="/clients/list" style="color:#4fc3f7;">Back</a>
+<!-- Main content -->
+<div class="main">
+
+    <div class="card">
+
+        <h2>Détails Client</h2>
+
+        <div class="info"><b>Nom :</b> <span th:text="${client.nom}"></span></div>
+        <div class="info"><b>Email :</b> <span th:text="${client.email}"></span></div>
+        <div class="info"><b>Téléphone :</b> <span th:text="${client.telephone}"></span></div>
+        <div class="info"><b>Entreprise :</b> <span th:text="${client.entreprise}"></span></div>
+        <div class="info"><b>Date création :</b> <span th:text="${client.dateCreation}"></span></div>
+
+        <h3 class="section-title">Historique des interactions</h3>
+
+        <div th:if="${#lists.isEmpty(interactions)}">
+            <p>Aucune interaction disponible.</p>
+        </div>
+
+        <div th:each="i : ${interactions}" class="interaction">
+            <p><b>Type :</b> <span th:text="${i.typeInteraction}"></span></p>
+            <p><b>Date :</b> <span th:text="${i.date}"></span></p>
+        </div>
+
+        <a href="/clients/list" class="btn-back">⬅ Retour</a>
+
+    </div>
 
 </div>
 

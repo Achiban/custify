@@ -185,6 +185,9 @@
             </div>
 
             <button type="submit" class="btn">Créer</button>
+            <div th:if="${error}" style="color:red; margin-bottom:10px;">
+                <span th:text="${error}"></span>
+            </div>
 
         </form>
 

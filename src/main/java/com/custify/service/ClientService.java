@@ -16,14 +16,18 @@ public class ClientService {
     private ClientRepository clientRepository;
 
     // CREATE
-    public Client saveClient(Client client, Utilisateur user) {
+    public void saveClient(Client client, Utilisateur user) {
 
         if (clientRepository.existsByEmail(client.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
 
+        if (clientRepository.existsByTelephone(client.getTelephone())) {
+            throw new RuntimeException("Telephone already exists");
+        }
+
         client.setUtilisateur(user);
-        return clientRepository.save(client);
+        clientRepository.save(client);
     }
 
     // LIST by user
@@ -53,7 +57,7 @@ public class ClientService {
     public void deleteClient(Long id) {
         clientRepository.deleteById(id);
     }
-    
+
     // SEARCH - Global search across all fields
     public List<Client> searchClients(Utilisateur user, String searchTerm) {
         if (searchTerm == null || searchTerm.trim().isEmpty()) {
@@ -61,7 +65,7 @@ public class ClientService {
         }
         return clientRepository.searchClients(user.getId(), searchTerm.trim());
     }
-    
+
     // FILTER - By name
     public List<Client> filterByNom(Utilisateur user, String nom) {
         if (nom == null || nom.trim().isEmpty()) {
@@ -69,7 +73,7 @@ public class ClientService {
         }
         return clientRepository.findByUtilisateurIdAndNomContainingIgnoreCase(user.getId(), nom.trim());
     }
-    
+
     // FILTER - By email
     public List<Client> filterByEmail(Utilisateur user, String email) {
         if (email == null || email.trim().isEmpty()) {
@@ -77,7 +81,7 @@ public class ClientService {
         }
         return clientRepository.findByUtilisateurIdAndEmailContainingIgnoreCase(user.getId(), email.trim());
     }
-    
+
     // FILTER - By company
     public List<Client> filterByEntreprise(Utilisateur user, String entreprise) {
         if (entreprise == null || entreprise.trim().isEmpty()) {
@@ -85,7 +89,7 @@ public class ClientService {
         }
         return clientRepository.findByUtilisateurIdAndEntrepriseContainingIgnoreCase(user.getId(), entreprise.trim());
     }
-    
+
     // FILTER - By phone
     public List<Client> filterByTelephone(Utilisateur user, String telephone) {
         if (telephone == null || telephone.trim().isEmpty()) {

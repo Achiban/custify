@@ -47,12 +47,20 @@ public class ClientController {
 
     // SAVE CLIENT (US-04)
     @PostMapping("/save")
-    public String saveClient(@ModelAttribute Client client) {
+    public String saveClient(@ModelAttribute Client client, Model model) {
 
-        Utilisateur user = getLoggedUser();
-        clientService.saveClient(client, user);
+        try {
+            Utilisateur user = getLoggedUser();
+            clientService.saveClient(client, user);
 
-        return "redirect:/clients/list"; // ✅ CORRECT
+            return "redirect:/clients/list";
+
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("client", client);
+
+            return "clients/form";
+        }
     }
 
     // LIST CLIENTS (US-04 + US-05) with search and filter
