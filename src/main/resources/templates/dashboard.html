@@ -100,14 +100,17 @@
 </head>
 <body>
     <div class="sidebar">
-        <div class="sidebar-brand">Custify Admin</div>
+        <div class="sidebar-brand">Custify  
+            <span sec:authorize="hasRole('ADMIN')">ADMIN</span>
+            <span sec:authorize="hasRole('COMMERCIAL')">COMMERCIAL</span>
+        </div>
         <ul class="sidebar-nav">
             <li><a href="/dashboard">Dashboard</a></li>
             <li sec:authorize="hasRole('ADMIN')"><a href="/users">Utilisateurs</a></li>
-            <li><a href="/clients">Clients</a></li>
-            <li><a href="/prospects">Prospects</a></li>
-            <li><a href="/opportunites">Opportunités</a></li>
-            <li><a href="/interactions">Interactions</a></li>
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/clients">Clients</a></li>
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/prospects">Prospects</a></li>
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/opportunites">Opportunités</a></li>
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/interactions">Interactions</a></li>
         </ul>
         <form th:action="@{/logout}" method="post">
             <button type="submit" class="logout-btn">Déconnexion</button>
@@ -118,7 +121,7 @@
         <div class="header">
             <h1>Tableau de bord</h1>
             <div class="user-info">
-                Bienvenue Admin <span sec:authentication="name">👤</span>
+                Bienvenue  <span sec:authentication="name">👤</span>
             </div>
         </div>
 
