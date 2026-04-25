@@ -1,5 +1,7 @@
 package com.custify.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,7 +18,6 @@ import com.custify.model.Utilisateur;
 import com.custify.repository.InteractionRepository;
 import com.custify.repository.UtilisateurRepository;
 import com.custify.service.ClientService;
-import java.util.List;
 
 @Controller
 @RequestMapping("/clients")
@@ -51,7 +52,7 @@ public class ClientController {
         Utilisateur user = getLoggedUser();
         clientService.saveClient(client, user);
 
-        return "clients/list";
+        return "redirect:/clients/list"; // ✅ CORRECT
     }
 
     // LIST CLIENTS (US-04 + US-05) with search and filter
@@ -65,9 +66,9 @@ public class ClientController {
             String filterTelephone) {
 
         Utilisateur user = getLoggedUser();
-        
+
         List<Client> clients;
-        
+
         // Apply filters based on parameters
         if (search != null && !search.trim().isEmpty()) {
             // Global search
@@ -89,7 +90,7 @@ public class ClientController {
             // No filter applied
             clients = clientService.getClientsByUser(user);
         }
-        
+
         model.addAttribute("clients", clients);
 
         return "clients/list";
