@@ -4,9 +4,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.custify.exception.AccesNonAutoriseException;
+import com.custify.exception.ClientNonTrouveException;
+import com.custify.exception.DonneeDupliqueeException;
 import com.custify.model.Client;
 import com.custify.model.Utilisateur;
+import com.custify.model.enums.Role;
 import com.custify.repository.ClientRepository;
 
 @Service
@@ -19,11 +24,11 @@ public class ClientService {
     public void saveClient(Client client, Utilisateur user) {
 
         if (clientRepository.existsByEmail(client.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new DonneeDupliqueeException("Un client avec cet email existe deja.");
         }
 
         if (clientRepository.existsByTelephone(client.getTelephone())) {
-            throw new RuntimeException("Telephone already exists");
+            throw new DonneeDupliqueeException("Un client avec ce telephone existe deja.");
         }
 
         client.setUtilisateur(user);
@@ -38,24 +43,46 @@ public class ClientService {
     // GET ONE
     public Client getClientById(Long id) {
         return clientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+                .orElseThrow(() -> new ClientNonTrouveException(id));
     }
 
-    // UPDATE
-    public Client updateClient(Client updated) {
-        Client client = getClientById(updated.getId());
+    // GET ONE avec controle de propriete (Admin acces total, Commercial limite a ses fiches)
+    public Client getClientForUser(Long id, Utilisateur user) {
+        Client client = getClientById(id);
+        verifierProprietaire(client, user);
+        return client;
+    }
 
-        client.setNom(updated.getNom());
-        client.setEmail(updated.getEmail());
-        client.setTelephone(updated.getTelephone());
-        client.setEntreprise(updated.getEntreprise());
+    // UPDATE (US-05B)
+    @Transactional
+    public Client updateClient(Long id, Client donneesModifiees, Utilisateur user) {
+
+        Client client = getClientForUser(id, user);
+
+        String nouvelEmail = donneesModifiees.getEmail();
+        String nouveauTelephone = donneesModifiees.getTelephone();
+
+        if (clientRepository.existsByEmailAndIdNot(nouvelEmail, id)) {
+            throw new DonneeDupliqueeException("Un autre client utilise deja cet email.");
+        }
+
+        if (clientRepository.existsByTelephoneAndIdNot(nouveauTelephone, id)) {
+            throw new DonneeDupliqueeException("Un autre client utilise deja ce telephone.");
+        }
+
+        client.setNom(donneesModifiees.getNom());
+        client.setEmail(nouvelEmail);
+        client.setTelephone(nouveauTelephone);
+        client.setEntreprise(donneesModifiees.getEntreprise());
 
         return clientRepository.save(client);
     }
 
-    // DELETE
-    public void deleteClient(Long id) {
-        clientRepository.deleteById(id);
+    // DELETE (US-05C)
+    @Transactional
+    public void deleteClient(Long id, Utilisateur user) {
+        Client client = getClientForUser(id, user);
+        clientRepository.delete(client);
     }
 
     // SEARCH - Global search across all fields
@@ -96,5 +123,14 @@ public class ClientService {
             return getClientsByUser(user);
         }
         return clientRepository.findByUtilisateurIdAndTelephoneContainingIgnoreCase(user.getId(), telephone.trim());
+    }
+
+    private void verifierProprietaire(Client client, Utilisateur user) {
+        if (user.getRole() == Role.ADMIN) {
+            return;
+        }
+        if (!client.getUtilisateur().getId().equals(user.getId())) {
+            throw new AccesNonAutoriseException();
+        }
     }
 }

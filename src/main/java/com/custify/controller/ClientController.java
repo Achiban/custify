@@ -12,7 +12,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.custify.exception.AccesNonAutoriseException;
+import com.custify.exception.ClientNonTrouveException;
+import com.custify.exception.DonneeDupliqueeException;
 import com.custify.model.Client;
 import com.custify.model.Utilisateur;
 import com.custify.repository.InteractionRepository;
@@ -32,9 +36,8 @@ public class ClientController {
     @Autowired
     private InteractionRepository interactionRepository;
 
-    // DRECtion via list
     @GetMapping("")
-    public String indexCliens(Model model) {
+    public String indexCliens() {
         return "redirect:/clients/list";
     }
 
@@ -55,7 +58,7 @@ public class ClientController {
 
             return "redirect:/clients/list";
 
-        } catch (RuntimeException e) {
+        } catch (DonneeDupliqueeException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("client", client);
 
@@ -77,9 +80,7 @@ public class ClientController {
 
         List<Client> clients;
 
-        // Apply filters based on parameters
         if (search != null && !search.trim().isEmpty()) {
-            // Global search
             clients = clientService.searchClients(user, search);
             model.addAttribute("searchTerm", search);
         } else if (filterNom != null && !filterNom.trim().isEmpty()) {
@@ -95,7 +96,6 @@ public class ClientController {
             clients = clientService.filterByTelephone(user, filterTelephone);
             model.addAttribute("filterTelephone", filterTelephone);
         } else {
-            // No filter applied
             clients = clientService.getClientsByUser(user);
         }
 
@@ -104,29 +104,80 @@ public class ClientController {
         return "clients/list";
     }
 
-    // DETAILS (US-05)
+    // DETAILS (US-05A)
     @GetMapping("/details/{id}")
-    public String details(@PathVariable Long id, Model model) {
+    public String details(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
 
-        Client client = clientService.getClientById(id);
+        try {
+            Client client = clientService.getClientForUser(id, getLoggedUser());
 
-        model.addAttribute("client", client);
-        model.addAttribute("interactions",
-                interactionRepository.findByClientId(id));
+            model.addAttribute("client", client);
+            model.addAttribute("interactions", interactionRepository.findByClientId(id));
 
-        return "clients/details";
+            return "clients/details";
+
+        } catch (ClientNonTrouveException | AccesNonAutoriseException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/clients/list";
+        }
     }
 
-    // EDIT FORM
+    // EDIT FORM (US-05B)
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
+    public String edit(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
 
-        model.addAttribute("client", clientService.getClientById(id));
+        try {
+            Client client = clientService.getClientForUser(id, getLoggedUser());
+            model.addAttribute("client", client);
+            return "clients/edit";
 
-        return "clients/edit";
+        } catch (ClientNonTrouveException | AccesNonAutoriseException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/clients/list";
+        }
     }
 
-    // GET LOGGED USER
+    // UPDATE CLIENT (US-05B)
+    @PostMapping("/update/{id}")
+    public String updateClient(
+            @PathVariable Long id,
+            @ModelAttribute Client client,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            clientService.updateClient(id, client, getLoggedUser());
+            redirectAttributes.addFlashAttribute("success", "Le client a ete modifie avec succes.");
+            return "redirect:/clients/details/" + id;
+
+        } catch (DonneeDupliqueeException e) {
+            // Reaffiche le formulaire avec les valeurs saisies pour permettre la correction
+            client.setId(id);
+            model.addAttribute("client", client);
+            model.addAttribute("error", e.getMessage());
+            return "clients/edit";
+
+        } catch (ClientNonTrouveException | AccesNonAutoriseException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/clients/list";
+        }
+    }
+
+    // DELETE CLIENT (US-05C)
+    @PostMapping("/delete/{id}")
+    public String deleteClient(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+
+        try {
+            clientService.deleteClient(id, getLoggedUser());
+            redirectAttributes.addFlashAttribute("success", "Le client a ete supprime avec succes.");
+
+        } catch (ClientNonTrouveException | AccesNonAutoriseException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+
+        return "redirect:/clients/list";
+    }
+
     private Utilisateur getLoggedUser() {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

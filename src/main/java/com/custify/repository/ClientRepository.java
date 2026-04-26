@@ -16,6 +16,10 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     boolean existsByEmail(String email);
 
+    boolean existsByEmailAndIdNot(String email, Long id);
+
+    boolean existsByTelephoneAndIdNot(String telephone, Long id);
+
     // Search by nom (name) for a specific user
     List<Client> findByUtilisateurIdAndNomContainingIgnoreCase(Long userId, String nom);
 
