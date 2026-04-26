@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Clients - Custify</title>
+
+    <style>
+        body {
+            background-color: #1e2a3a;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .sidebar {
+            background-color: #16212e;
+            min-height: 100vh;
+            padding: 20px 0;
+            position: fixed;
+            width: 200px;
+        }
+        .sidebar-brand {
+            color: #4fc3f7;
+            font-weight: bold;
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-nav li {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .sidebar-nav li:hover {
+            background-color: #1e2a3a;
+        }
+        .sidebar-nav li a {
+            color: #b0bec5;
+            text-decoration: none;
+        }
+        .logout-btn {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            cursor: pointer;
+        }
+
+        .main {
+            margin-left: 220px;
+            padding: 30px;
+        }
+
+        .search-filter-container {
+            background-color: #263645;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .search-filter-container h3 {
+            margin-top: 0;
+            color: #4fc3f7;
+        }
+
+        .search-section {
+            margin-bottom: 20px;
+        }
+
+        .search-section label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4fc3f7;
+            font-weight: bold;
+        }
+
+        .search-section input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #4fc3f7;
+            border-radius: 5px;
+            background-color: #1e2a3a;
+            color: #fff;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        .filter-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-item label {
+            margin-bottom: 5px;
+            color: #4fc3f7;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .filter-item input {
+            padding: 8px;
+            border: 1px solid #4fc3f7;
+            border-radius: 5px;
+            background-color: #1e2a3a;
+            color: #fff;
+        }
+
+        .buttons-section {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: #4fc3f7;
+            padding: 10px 15px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background-color: #29b6f6;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+        }
+
+        .btn-secondary:hover {
+            background-color: #777;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #263645;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #3a4a5c;
+            text-align: left;
+        }
+
+        th {
+            color: #4fc3f7;
+            font-weight: bold;
+        }
+
+        a {
+            color: #4fc3f7;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-size: 1.1em;
+        }
+
+        .results-info {
+            color: #4fc3f7;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-brand">Custify  
+            <span sec:authorize="hasRole('ADMIN')">ADMIN</span>
+            <span sec:authorize="hasRole('COMMERCIAL')">COMMERCIAL</span>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="/dashboard">Dashboard</a></li>
+
+            <li sec:authorize="hasRole('ADMIN')">
+                <a href="/users">Utilisateurs</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/clients">Clients</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/prospects">Prospects</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/opportunites">Opportunités</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/interactions">Interactions</a>
+            </li>
+        </ul>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Déconnexion</button>
+        </form>
+    </div>
+
+<div class="main">
+
+    <h2>Gestion des Clients</h2>
+
+    <a class="btn" href="/clients/new">+ Ajouter Client</a>
+
+    <br><br>
+
+    <!-- SEARCH & FILTER SECTION -->
+    <div class="search-filter-container">
+        <h3>Recherche et Filtrage</h3>
+        
+        <form method="GET" action="/clients/list">
+            
+            <!-- GLOBAL SEARCH -->
+            <div class="search-section">
+                <label for="search">Recherche Globale:</label>
+                <input type="text" id="search" name="search" 
+                       placeholder="Tapez un nom, email, entreprise ou téléphone..." 
+                       th:value="${searchTerm}">
+                <small style="color: #999;">Recherche dans tous les champs</small>
+            </div>
+
+            <!-- INDIVIDUAL FILTERS -->
+            <h4 style="color: #4fc3f7; margin-top: 20px; margin-bottom: 10px;">OU Filtrer par champ spécifique:</h4>
+            
+            <div class="filter-section">
+                <div class="filter-item">
+                    <label for="filterNom">Nom du Client:</label>
+                    <input type="text" id="filterNom" name="filterNom" 
+                           placeholder="Ex: Jean Dupont" 
+                           th:value="${filterNom}">
+                </div>
+
+                <div class="filter-item">
+                    <label for="filterEmail">Email:</label>
+                    <input type="email" id="filterEmail" name="filterEmail" 
+                           placeholder="Ex: contact@example.com" 
+                           th:value="${filterEmail}">
+                </div>
+
+                <div class="filter-item">
+                    <label for="filterEntreprise">Entreprise:</label>
+                    <input type="text" id="filterEntreprise" name="filterEntreprise" 
+                           placeholder="Ex: TechCorp" 
+                           th:value="${filterEntreprise}">
+                </div>
+
+                <div class="filter-item">
+                    <label for="filterTelephone">Téléphone:</label>
+                    <input type="text" id="filterTelephone" name="filterTelephone" 
+                           placeholder="Ex: +33612345678" 
+                           th:value="${filterTelephone}">
+                </div>
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="buttons-section">
+                <button type="submit" class="btn"> Rechercher</button>
+                <a href="/clients/list" class="btn btn-secondary">✕ Réinitialiser</a>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- RESULTS INFO -->
+    <div class="results-info" th:if="${searchTerm}">
+        Résultats de recherche pour: <strong th:text="${searchTerm}"></strong> 
+        (<span th:text="${clients.size()}"></span> résultat(s))
+    </div>
+    <div class="results-info" th:if="${filterNom}">
+        Filtrés par nom: <strong th:text="${filterNom}"></strong> 
+        (<span th:text="${clients.size()}"></span> résultat(s))
+    </div>
+    <div class="results-info" th:if="${filterEmail}">
+        Filtrés par email: <strong th:text="${filterEmail}"></strong> 
+        (<span th:text="${clients.size()}"></span> résultat(s))
+    </div>
+    <div class="results-info" th:if="${filterEntreprise}">
+        Filtrés par entreprise: <strong th:text="${filterEntreprise}"></strong> 
+        (<span th:text="${clients.size()}"></span> résultat(s))
+    </div>
+    <div class="results-info" th:if="${filterTelephone}">
+        Filtrés par téléphone: <strong th:text="${filterTelephone}"></strong> 
+        (<span th:text="${clients.size()}"></span> résultat(s))
+    </div>
+
+    <!-- CLIENTS TABLE -->
+    <div th:if="${clients.size() > 0}">
+        <table>
+            <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Entreprise</th>
+                <th>Actions</th>
+            </tr>
+
+            <tr th:each="c : ${clients}">
+                <td th:text="${c.nom}"></td>
+                <td th:text="${c.email}"></td>
+                <td th:text="${c.telephone}"></td>
+                <td th:text="${c.entreprise}"></td>
+
+                <td>
+                    <a th:href="@{'/clients/details/' + ${c.id}}">Voir</a> |
+                    <a th:href="@{'/clients/edit/' + ${c.id}}">Modifier</a> |
+                    <a th:href="@{'/clients/delete/' + ${c.id}}">Supprimer</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- NO RESULTS MESSAGE -->
+    <div th:if="${clients.size() == 0}" class="no-results">
+        <p>Aucun client trouvé selon vos critères de recherche.</p>
+        <p><a href="/clients/list" style="color: #4fc3f7;">← Réinitialiser la recherche</a></p>
+    </div>
+
+</div>
+
+</body>
+</html>

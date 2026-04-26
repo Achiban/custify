@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier le rôle - Custify</title>
+    <style>
+        body {
+            background-color: #1e2a3a;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+        .sidebar {
+            background-color: #16212e;
+            min-height: 100vh;
+            padding: 20px 0;
+            position: fixed;
+            width: 200px;
+        }
+        .sidebar-brand {
+            color: #4fc3f7;
+            font-weight: bold;
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-nav li {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .sidebar-nav li:hover {
+            background-color: #1e2a3a;
+        }
+        .sidebar-nav li a {
+            color: #b0bec5;
+            text-decoration: none;
+        }
+        .logout-btn {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            cursor: pointer;
+        }
+        .main-content {
+            margin-left: 200px;
+            padding: 30px;
+        }
+        .header {
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #4fc3f7;
+            font-size: 1.8rem;
+            margin: 0 0 10px 0;
+        }
+        .user-info-card {
+            background-color: #263645;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 3px solid #4fc3f7;
+        }
+        .user-info-card p {
+            margin: 5px 0;
+            color: #b0bec5;
+        }
+        .user-info-card strong {
+            color: #4fc3f7;
+        }
+        .form-container {
+            background-color: #263645;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 600px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            color: #b0bec5;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background-color: #1e2a3a;
+            border: 1px solid #3a4a5c;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-group select:focus {
+            outline: none;
+            border-color: #4fc3f7;
+        }
+        .form-group select.is-invalid {
+            border-color: #e74c3c;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .btn-primary {
+            background-color: #4fc3f7;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #3ab0e0;
+        }
+        .btn-secondary {
+            background-color: #3a4a5c;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            display: inline-block;
+        }
+        .btn-secondary:hover {
+            background-color: #4a5a6c;
+        }
+        .role-description {
+            background-color: #1e2a3a;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .role-description h4 {
+            color: #4fc3f7;
+            margin: 0 0 10px 0;
+            font-size: 0.9rem;
+        }
+        .role-description ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #b0bec5;
+            font-size: 0.85rem;
+        }
+        .role-description ul li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+        <div class="sidebar">
+        <div class="sidebar-brand">Custify  
+            <span sec:authorize="hasRole('ADMIN')">ADMIN</span>
+            <span sec:authorize="hasRole('COMMERCIAL')">COMMERCIAL</span>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="/dashboard">Dashboard</a></li>
+
+            <li sec:authorize="hasRole('ADMIN')">
+                <a href="/users">Utilisateurs</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/clients">Clients</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/prospects">Prospects</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/opportunites">Opportunités</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/interactions">Interactions</a>
+            </li>
+        </ul>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Déconnexion</button>
+        </form>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Modifier le rôle de l'utilisateur</h1>
+        </div>
+
+        <div class="user-info-card">
+            <p><strong>Nom:</strong> <span th:text="${utilisateur.nom}">John Doe</span></p>
+            <p><strong>Email:</strong> <span th:text="${utilisateur.email}">john@example.com</span></p>
+            <p><strong>Rôle actuel:</strong> <span th:text="${utilisateur.role}">ADMIN</span></p>
+        </div>
+
+        <div class="form-container">
+            <form th:action="@{/users/{id}/modifier-role(id=${utilisateur.id})}" th:object="${modifierRoleRequest}" method="post">
+                <div class="form-group">
+                    <label for="role">Nouveau rôle</label>
+                    <select id="role" th:field="*{role}" th:errorclass="is-invalid" required>
+                        <option value="">Sélectionner un rôle</option>
+                        <option th:value="ADMIN">ADMIN</option>
+                        <option th:value="COMMERCIAL">COMMERCIAL</option>
+                    </select>
+                    <div class="error-message" th:if="${#fields.hasErrors('role')}" th:errors="*{role}">Role error</div>
+                </div>
+
+                <div class="role-description">
+                    <h4>📋 Permissions des rôles</h4>
+                    <p><strong>ADMIN :</strong></p>
+                    <ul>
+                        <li>✅ Accès complet au dashboard</li>
+                        <li>✅ Gestion des utilisateurs</li>
+                        <li>✅ Gestion des clients, prospects, opportunités, interactions</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>COMMERCIAL :</strong></p>
+                    <ul>
+                        <li>✅ Accès au dashboard</li>
+                        <li>❌ Pas d'accès à la gestion des utilisateurs</li>
+                        <li>✅ Gestion des clients, prospects, opportunités, interactions</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Modifier le rôle</button>
+                    <a href="/users" class="btn-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
