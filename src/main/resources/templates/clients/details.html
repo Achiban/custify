@@ -55,17 +55,6 @@
             cursor: pointer;
         }
 
-        .sidebar a {
-            display: block;
-            color: #b0bec5;
-            text-decoration: none;
-            padding: 10px 0;
-        }
-
-        .sidebar a:hover {
-            color: #4fc3f7;
-        }
-
         .main {
             margin-left: 220px;
             padding: 30px;
@@ -87,18 +76,6 @@
             padding: 8px;
             background: #1e2a3a;
             border-radius: 5px;
-        }
-
-        .section-title {
-            margin-top: 25px;
-            color: #4fc3f7;
-        }
-
-        .interaction {
-            background: #1e2a3a;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
         }
 
         .btn-back, .btn-action, .btn-danger {
@@ -265,42 +242,41 @@
         }
     </style>
 </head>
-
 <body>
 
 <!-- Sidebar -->
 <div class="sidebar">
-        <div class="sidebar-brand">Custify  
-            <span sec:authorize="hasRole('ADMIN')">ADMIN</span>
-            <span sec:authorize="hasRole('COMMERCIAL')">COMMERCIAL</span>
-        </div>
-        <ul class="sidebar-nav">
-            <li><a href="/dashboard">Dashboard</a></li>
-
-            <li sec:authorize="hasRole('ADMIN')">
-                <a href="/users">Utilisateurs</a>
-            </li>
-
-            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
-                <a href="/clients">Clients</a>
-            </li>
-
-            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
-                <a href="/prospects">Prospects</a>
-            </li>
-
-            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
-                <a href="/opportunites">Opportunités</a>
-            </li>
-
-            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
-                <a href="/interactions">Interactions</a>
-            </li>
-        </ul>
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn">Déconnexion</button>
-        </form>
+    <div class="sidebar-brand">Custify
+        <span sec:authorize="hasRole('ADMIN')">ADMIN</span>
+        <span sec:authorize="hasRole('COMMERCIAL')">COMMERCIAL</span>
     </div>
+    <ul class="sidebar-nav">
+        <li><a href="/dashboard">Dashboard</a></li>
+
+        <li sec:authorize="hasRole('ADMIN')">
+            <a href="/users">Utilisateurs</a>
+        </li>
+
+        <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+            <a href="/clients">Clients</a>
+        </li>
+
+        <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+            <a href="/prospects">Prospects</a>
+        </li>
+
+        <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+            <a href="/opportunites">Opportunités</a>
+        </li>
+
+        <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+            <a href="/interactions">Interactions</a>
+        </li>
+    </ul>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="logout-btn">Déconnexion</button>
+    </form>
+</div>
 
 <!-- Main content -->
 <div class="main">
@@ -317,18 +293,6 @@
         <div class="info"><b>Téléphone :</b> <span th:text="${client.telephone}"></span></div>
         <div class="info"><b>Entreprise :</b> <span th:text="${client.entreprise}"></span></div>
         <div class="info"><b>Date création :</b> <span th:text="${client.dateCreation}"></span></div>
-
-        <h3 class="section-title">Historique des interactions</h3>
-
-        <div th:if="${#lists.isEmpty(interactions)}">
-            <p>Aucune interaction disponible.</p>
-        </div>
-
-        <div th:each="i : ${interactions}" class="interaction">
-            <p><b>Type :</b> <span th:text="${i.type}"></span></p>
-            <p><b>Date :</b> <span th:text="${i.dateHeure}"></span></p>
-            <p th:if="${i.resume}"><b>Résumé :</b> <span th:text="${i.resume}"></span></p>
-        </div>
 
         <div class="actions">
             <a href="/clients/list" class="btn-back">⬅ Retour</a>
@@ -392,3 +356,4 @@
 
 </body>
 </html>
+

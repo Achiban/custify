@@ -40,6 +40,11 @@ public class ClientService {
         return clientRepository.findByUtilisateurId(user.getId());
     }
 
+    // LIST all clients (Admin only)
+    public List<Client> getAllClients() {
+        return clientRepository.findAll();
+    }
+
     // GET ONE
     public Client getClientById(Long id) {
         return clientRepository.findById(id)
