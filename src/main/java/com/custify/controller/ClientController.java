@@ -19,7 +19,6 @@ import com.custify.exception.ClientNonTrouveException;
 import com.custify.exception.DonneeDupliqueeException;
 import com.custify.model.Client;
 import com.custify.model.Utilisateur;
-import com.custify.repository.InteractionRepository;
 import com.custify.repository.UtilisateurRepository;
 import com.custify.service.ClientService;
 
@@ -32,9 +31,6 @@ public class ClientController {
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
-
-    @Autowired
-    private InteractionRepository interactionRepository;
 
     @GetMapping("")
     public String indexCliens() {
@@ -112,7 +108,6 @@ public class ClientController {
             Client client = clientService.getClientForUser(id, getLoggedUser());
 
             model.addAttribute("client", client);
-            model.addAttribute("interactions", interactionRepository.findByClientId(id));
 
             return "clients/details";
 
