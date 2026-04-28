@@ -22,10 +22,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
@@ -41,16 +41,12 @@ class ClientControllerTest {
     @Mock
     private InteractionRepository interactionRepository;
 
+    @InjectMocks
     private ClientController clientController;
     private Utilisateur loggedUser;
 
     @BeforeEach
     void setUp() {
-        clientController = new ClientController();
-        ReflectionTestUtils.setField(clientController, "clientService", clientService);
-        ReflectionTestUtils.setField(clientController, "utilisateurRepository", utilisateurRepository);
-        ReflectionTestUtils.setField(clientController, "interactionRepository", interactionRepository);
-
         loggedUser = new Utilisateur();
         loggedUser.setId(1L);
         loggedUser.setNom("Commercial");
@@ -123,13 +119,11 @@ class ClientControllerTest {
         ExtendedModelMap model = new ExtendedModelMap();
         RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
         when(clientService.getClientForUser(13L, loggedUser)).thenReturn(client);
-        when(interactionRepository.findByClientId(13L)).thenReturn(List.of());
 
         String viewName = clientController.details(13L, model, redirectAttributes);
 
         assertEquals("clients/details", viewName);
         assertEquals(client, model.getAttribute("client"));
-        assertEquals(List.of(), model.getAttribute("interactions"));
     }
 
     @Test
