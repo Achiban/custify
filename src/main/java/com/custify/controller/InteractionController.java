@@ -244,6 +244,48 @@ public class InteractionController {
     }
 
     /**
+     * Met à jour une interaction existante
+     */
+    @PostMapping("/modifier/{id}")
+    public String updateInteraction(@PathVariable Long id,
+                                    @Valid @ModelAttribute("interaction") CreerInteractionRequest request,
+                                    BindingResult bindingResult,
+                                    Model model,
+                                    RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            try {
+                Interaction interaction = interactionService.getInteractionById(id);
+                model.addAttribute("client", interaction.getClient());
+                model.addAttribute("interaction", request);
+                model.addAttribute("id", id);
+                model.addAttribute("typesInteraction", TypeInteraction.values());
+            } catch (Exception e) {
+                model.addAttribute("error", e.getMessage());
+            }
+            return "interactions/form";
+        }
+
+        try {
+            Utilisateur userConnecte = getCurrentUser();
+            interactionService.updateInteraction(id, request, userConnecte);
+            redirectAttributes.addFlashAttribute("success", "Interaction modifiée avec succès");
+            return "redirect:/interactions/list";
+        } catch (Exception e) {
+            try {
+                Interaction interaction = interactionService.getInteractionById(id);
+                model.addAttribute("client", interaction.getClient());
+                model.addAttribute("interaction", request);
+                model.addAttribute("id", id);
+                model.addAttribute("typesInteraction", TypeInteraction.values());
+            } catch (Exception ex) {
+                model.addAttribute("error", ex.getMessage());
+            }
+            model.addAttribute("error", "Erreur lors de la modification: " + e.getMessage());
+            return "interactions/form";
+        }
+    }
+
+    /**
      * Supprime une interaction
      */
     @PostMapping("/supprimer/{id}")

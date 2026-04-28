@@ -14,7 +14,6 @@
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <!-- Header -->
                 <div class="mb-4">
                     <h2 class="h2 mb-3">
                         <i class="fas fa-comment-dots"></i> 
@@ -22,24 +21,24 @@
                     </h2>
                     <p class="text-muted">
                         <span th:if="${client}">Client: <strong th:text="${client.nom}"></strong></span>
-                        <span th:if="!${client}">Sélectionnez un client ou prospect pour créer une interaction</span>
+                        <span th:if="!${client}">Selectionnez un client ou prospect pour creer une interaction</span>
                     </p>
                 </div>
 
-                <!-- Messages d'erreur -->
                 <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
 
-                <!-- Formulaire -->
-                <form th:action="@{/interactions/creer}" method="post" th:object="${interaction}" class="needs-validation" novalidate>
+                <form th:action="${id != null} ? @{/interactions/modifier/{id}(id=${id})} : @{/interactions/creer}" 
+                      method="post" th:object="${interaction}" class="needs-validation" novalidate>
                     
-                    <!-- Sélection du Client (si aucun client spécifié) -->
+                    <input type="hidden" th:if="${id != null}" name="id" th:value="${id}">
+                    
                     <div class="mb-3" th:if="!${client}">
                         <label for="clientId" class="form-label">Client / Prospect <span class="text-danger">*</span></label>
                         <select class="form-select" id="clientId" th:field="*{clientId}" required>
-                            <option value="">-- Sélectionnez un client ou prospect --</option>
+                            <option value="">-- Selectionnez un client ou prospect --</option>
                             <option th:each="c : ${clients}" th:value="${c.id}" th:text="${c.nom}"></option>
                         </select>
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('clientId')}">
@@ -47,14 +46,12 @@
                         </div>
                     </div>
 
-                    <!-- Client ID (caché si client spécifié) -->
                     <input type="hidden" th:if="${client}" th:field="*{clientId}" th:value="${client.id}">
                     
-                    <!-- Type d'interaction -->
                     <div class="mb-3">
                         <label for="type" class="form-label">Type d'interaction <span class="text-danger">*</span></label>
                         <select class="form-select" id="type" th:field="*{type}" required>
-                            <option value="">-- Sélectionnez un type --</option>
+                            <option value="">-- Selectionnez un type --</option>
                             <option th:each="type : ${typesInteraction}" th:value="${type}" th:text="${type}"></option>
                         </select>
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}">
@@ -62,7 +59,6 @@
                         </div>
                     </div>
 
-                    <!-- Date et Heure -->
                     <div class="mb-3">
                         <label for="dateHeure" class="form-label">Date et Heure <span class="text-danger">*</span></label>
                         <input type="datetime-local" class="form-control" id="dateHeure" th:field="*{dateHeure}" required>
@@ -71,18 +67,16 @@
                         </div>
                     </div>
 
-                    <!-- Résumé de l'interaction -->
                     <div class="mb-3">
-                        <label for="resume" class="form-label">Résumé de l'interaction <span class="text-danger">*</span></label>
+                        <label for="resume" class="form-label">Resume de l'interaction <span class="text-danger">*</span></label>
                         <textarea class="form-control" id="resume" th:field="*{resume}" rows="5" 
-                                  placeholder="Décrivez le contenu de l'interaction (appel, email, réunion, etc.)" required></textarea>
-                        <small class="form-text text-muted">Maximum 1000 caractères</small>
+                                  placeholder="Decrivez le contenu de l'interaction (appel, email, reunion, etc.)" required></textarea>
+                        <small class="form-text text-muted">Maximum 1000 caracteres</small>
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('resume')}">
                             <span th:errors="*{resume}"></span>
                         </div>
                     </div>
 
-                    <!-- Boutons -->
                     <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Enregistrer l'interaction
@@ -98,7 +92,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Validation du formulaire Bootstrap
         (function () {
             'use strict';
             window.addEventListener('load', function () {
@@ -115,7 +108,6 @@
             });
         })();
 
-        // Définir la date/heure actuelle par défaut
         document.addEventListener('DOMContentLoaded', function() {
             const dateInput = document.getElementById('dateHeure');
             if (!dateInput.value) {

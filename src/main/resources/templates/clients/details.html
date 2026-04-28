@@ -340,8 +340,22 @@
     }
 
     document.getElementById('deleteModalConfirm').addEventListener('click', function () {
-        if (formAConfirmer) {
+
+        <h3 class="section-title">Historique des interactions</h3>
+
+        <div th:if="${#lists.isEmpty(interactions)}">
+            <p>Aucune interaction disponible.</p>
+        </div>
+
+        <div th:each="i : ${interactions}" class="interaction">
+            <p><b>Type :</b> <span th:text="${i.type}"></span></p>
+            <p><b>Date :</b> <span th:text="${i.dateHeure}"></span></p>
+            <p th:if="${i.resume}"><b>Résumé :</b> <span th:text="${i.resume}"></span></p>
+        </div>
+
             formAConfirmer.submit();
+            <a th:href="@{'/interactions/nouveau/' + ${client.id}}" class="btn-action" style="background: #27ae60;">➕ Nouvelle Interaction</a>
+            <a th:href="@{'/interactions/client/' + ${client.id}}" class="btn-action" style="background: #3498db;">📋 Voir l'historique</a>
         }
     });
 
