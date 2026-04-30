@@ -304,8 +304,8 @@
                         <span th:text="${#temporals.format(interaction.dateHeure, 'dd/MM/yyyy HH:mm')}"></span>
                     </td>
                     <td>
-                        <span class="badge"
-                              th:classappend="${interaction.type.name() == 'APPEL' ? 'badge-info' : interaction.type.name() == 'EMAIL' ? 'badge-warning' : interaction.type.name() == 'REUNION' ? 'badge-success' : 'badge-secondary'}">
+                        <span class="badge badge-interaction"
+                            th:classappend="${interaction.type.name() == 'APPEL' ? 'badge-info' : interaction.type.name() == 'EMAIL' ? 'badge-warning' : interaction.type.name() == 'REUNION' ? 'badge-success' : 'badge-secondary'}">
                             <i th:class="'fas ' + ${interaction.type.name() == 'APPEL' ? 'fa-phone' : interaction.type.name() == 'EMAIL' ? 'fa-envelope' : interaction.type.name() == 'REUNION' ? 'fa-users' : 'fa-sticky-note'}"></i>
                             <span th:text="${interaction.type}"></span>
                         </span>

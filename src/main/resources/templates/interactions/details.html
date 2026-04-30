@@ -78,17 +78,17 @@
                 </div>
 
                 <!-- Card de détails -->
-                <div th:if="${interaction}" class="card">
-                    <div class="card-header bg-light">
+                <div th:if="${interaction}" class="card card-dark">
+                    <div class="card-header">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <h4 class="mb-2">
-                                    <i th:class="'fas ' + @{${interaction.type == 'APPEL' ? 'fa-phone' : interaction.type == 'EMAIL' ? 'fa-envelope' : interaction.type == 'REUNION' ? 'fa-users' : 'fa-sticky-note'}}"></i>
+                                    <i th:class="'fas ' + (${interaction.type == 'APPEL' ? 'fa-phone' : interaction.type == 'EMAIL' ? 'fa-envelope' : interaction.type == 'REUNION' ? 'fa-users' : 'fa-sticky-note'})"></i>
                                     <span th:text="${interaction.type}"></span>
                                 </h4>
                             </div>
                             <div>
-                                <span class="badge bg-primary">
+                                <span class="badge-interaction badge-info">
                                     <i class="fas fa-calendar"></i>
                                     <span th:text="${#temporals.format(interaction.dateHeure, 'dd/MM/yyyy HH:mm')}"></span>
                                 </span>
@@ -157,11 +157,11 @@
                     <!-- Boutons d'action -->
                     <div class="card-footer bg-light">
                         <div class="btn-group w-100" role="group">
-                            <a th:href="@{/interactions/modifier/{id}(id=${interaction.id})}" class="btn btn-warning">
+                            <a th:href="@{/interactions/modifier/{id}(id=${interaction.id})}" class="btn btn-edit">
                                 <i class="fas fa-edit"></i> Modifier
                             </a>
                             <form th:action="@{/interactions/supprimer/{id}(id=${interaction.id})}" method="post" style="display: inline; width: auto;">
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette interaction?')">
+                                <button type="submit" class="btn btn-delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette interaction?')">
                                     <i class="fas fa-trash"></i> Supprimer
                                 </button>
                             </form>
