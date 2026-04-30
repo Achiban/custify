@@ -358,9 +358,10 @@ button.secondary,
 }
 
 .btn-sm {
-    padding: 6px 10px;
-    border-radius: 10px;
-    font-weight: 700;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
 }
 
 /* Header styling for interactions list */
@@ -423,11 +424,26 @@ button.secondary,
         justify-content: center;
     }
 }
-.btn-view { color: #4fc3f7; border: 1px solid #4fc3f7; background: transparent; }
+.btn-view { 
+    color: #4fc3f7; 
+    border: 1px solid #4fc3f7; 
+    background: transparent;
+    padding: 8px 12px;
+}
 .btn-view:hover { background: #4fc3f7; color: #fff; }
-.btn-edit { color: #f5b041; border: 1px solid #f5b041; background: transparent; }
+.btn-edit { 
+    color: #f5b041; 
+    border: 1px solid #f5b041; 
+    background: transparent;
+    padding: 8px 12px;
+}
 .btn-edit:hover { background: #f5b041; color: #fff; }
-.btn-delete { color: #e74c3c; border: 1px solid #e74c3c; background: transparent; }
+.btn-delete { 
+    color: #e74c3c; 
+    border: 1px solid #e74c3c; 
+    background: transparent;
+    padding: 8px 12px;
+}
 .btn-delete:hover { background: #e74c3c; color: #fff; }
 
 /* Ensure alerts inside dark cards are readable */
@@ -438,6 +454,11 @@ button.secondary,
 }
 
 /* Restore original behavior: first action stretches, other actions remain compact */
+.btn-group {
+    display: flex !important;
+    gap: 8px;
+    align-items: center;
+}
 .btn-group.w-100 {
     display: flex !important;
     gap: 12px;
