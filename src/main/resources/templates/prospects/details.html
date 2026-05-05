@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Détails du Prospect - Custify</title>
+    <style>
+        body { background-color: #1e2a3a; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        .sidebar { background-color: #16212e; min-height: 100vh; padding: 20px 0; position: fixed; width: 200px; }
+        .sidebar-brand { color: #4fc3f7; font-weight: bold; padding: 0 20px; margin-bottom: 30px; font-size: 1.2rem; }
+        .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+        .sidebar-nav li { padding: 12px 20px; cursor: pointer; transition: background-color 0.3s; }
+        .sidebar-nav li:hover { background-color: #1e2a3a; }
+        .sidebar-nav li a { color: #b0bec5; text-decoration: none; }
+        .logout-btn { background-color: #e74c3c; border: none; color: white; padding: 10px 20px; border-radius: 5px; position: fixed; bottom: 20px; left: 20px; cursor: pointer; }
+        .main-content { margin-left: 220px; padding: 30px; }
+        .details-card { background-color: #263645; padding: 30px; border-radius: 8px; max-width: 650px; }
+        .details-card h2 { color: #4fc3f7; margin-top: 0; }
+        .detail-item { margin-bottom: 18px; }
+        .detail-item label { display: block; color: #b0bec5; margin-bottom: 6px; }
+        .detail-item span { display: block; color: #fff; font-size: 1rem; background-color: #1e2a3a; padding: 12px 14px; border-radius: 6px; }
+        .btn-secondary { display: inline-block; margin-top: 20px; padding: 10px 18px; background-color: #4fc3f7; color: #fff; text-decoration: none; border-radius: 5px; }
+        .btn-secondary:hover { background-color: #3ab0e0; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">Custify  <span sec:authorize="hasRole('ADMIN')">ADMIN</span><span sec:authorize="hasRole('COMMERCIAL')">COMMERCIAL</span></div>
+        <ul class="sidebar-nav">
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li sec:authorize="hasRole('ADMIN')"><a href="/users">Utilisateurs</a></li>
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/clients">Clients</a></li>
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/prospects">Prospects</a></li>
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/opportunites">Opportunités</a></li>
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/interactions">Interactions</a></li>
+        </ul>
+        <form th:action="@{/logout}" method="post"><button type="submit" class="logout-btn">Déconnexion</button></form>
+    </div>
+
+    <div class="main-content">
+        <div class="details-card">
+            <h2>Détails du prospect</h2>
+
+            <div class="detail-item">
+                <label>Nom</label>
+                <span th:text="${prospect.nom}"></span>
+            </div>
+            <div class="detail-item">
+                <label>Email</label>
+                <span th:text="${prospect.email}"></span>
+            </div>
+            <div class="detail-item">
+                <label>Source</label>
+                <span th:text="${prospect.source}"></span>
+            </div>
+            <div class="detail-item">
+                <label>Statut</label>
+                <span th:text="${prospect.statut}"></span>
+            </div>
+            <div class="detail-item">
+                <label>Commercial assigné</label>
+                <span th:text="${prospect.utilisateur.nom}"></span>
+            </div>
+
+            <a class="btn-secondary" href="/prospects/list">Retour à la liste</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -28,8 +28,9 @@ public class SecurityConfig {
                         // Dashboard accessible à tous les utilisateurs authentifiés
                         .requestMatchers("/dashboard").hasAnyRole("ADMIN", "COMMERCIAL")
 
-                        // Gestion clients, prospects, opportunités, interactions - ADMIN et COMMERCIAL
+                        // Gestion clients, opportunités, interactions - ADMIN et COMMERCIAL
                         .requestMatchers("/clients/**").hasAnyRole("ADMIN", "COMMERCIAL")
+                        .requestMatchers("/prospects/new", "/prospects/save").hasRole("COMMERCIAL")
                         .requestMatchers("/prospects/**").hasAnyRole("ADMIN", "COMMERCIAL")
                         .requestMatchers("/opportunites/**").hasAnyRole("ADMIN", "COMMERCIAL")
                         .requestMatchers("/interactions/**").hasAnyRole("ADMIN", "COMMERCIAL")
