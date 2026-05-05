@@ -10,6 +10,7 @@ import com.custify.exception.ProspectNonTrouveException;
 import com.custify.model.Prospect;
 import com.custify.model.Utilisateur;
 import com.custify.model.enums.StatutProspect;
+import com.custify.repository.ClientRepository;
 import com.custify.repository.ProspectRepository;
 
 @Service
@@ -18,11 +19,23 @@ public class ProspectService {
     @Autowired
     private ProspectRepository prospectRepository;
 
+    @Autowired
+    private ClientRepository clientRepository;
+
     public Prospect saveProspect(Prospect prospect, Utilisateur utilisateur) {
         validateProspect(prospect);
         prospect.setNom(prospect.getNom().trim());
         prospect.setEmail(prospect.getEmail().trim());
         prospect.setSource(prospect.getSource().trim());
+
+        if (clientRepository.existsByEmail(prospect.getEmail())) {
+            throw new IllegalArgumentException("Un client avec cet email existe deja.");
+        }
+
+        if (prospectRepository.existsByEmail(prospect.getEmail())) {
+            throw new IllegalArgumentException("Un autre prospect utilise deja cet email.");
+        }
+
         prospect.setUtilisateur(utilisateur);
         return prospectRepository.save(prospect);
     }
