@@ -27,6 +27,8 @@
         a:hover { text-decoration: underline; }
         .no-results { text-align: center; color: #999; padding: 30px 0; }
         .actions a { margin-right: 10px; }
+        .btn-convert-small { display: inline-block; padding: 5px 10px; background-color: #4caf50; color: #fff; border-radius: 3px; font-size: 0.85rem; }
+        .btn-convert-small:hover { background-color: #43a047; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -69,7 +71,10 @@
                         <td th:text="${prospect.email}"></td>
                         <td th:text="${prospect.source}"></td>
                         <td th:text="${prospect.statut}"></td>
-                        <td class="actions"><a th:href="@{'/prospects/details/' + ${prospect.id}}">Voir</a></td>
+                        <td class="actions">
+                            <a th:href="@{'/prospects/details/' + ${prospect.id}}">Voir</a>
+                            <a th:if="${prospect.statut.name() != 'CONVERTI'}" th:href="@{'/prospects/convert/' + ${prospect.id}}" class="btn-convert-small" onclick="return confirm('Convertir ce prospect en client ?');">Convertir</a>
+                        </td>
                     </tr>
                 </tbody>
             </table>

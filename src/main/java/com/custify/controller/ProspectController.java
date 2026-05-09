@@ -77,6 +77,27 @@ public class ProspectController {
         }
     }
 
+    /**
+     * Convertit un prospect en client en un clic (US: Commercial feature).
+     * Cette endpoint cree un client a partir du prospect, met a jour le statut
+     * du prospect a CONVERTI, et redirige vers la fiche du nouveau client.
+     */
+    @GetMapping("/convert/{id}")
+    public String convertProspect(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            Utilisateur user = getLoggedUser();
+            var client = prospectService.convertProspectToClient(id, user);
+            redirectAttributes.addFlashAttribute("success", "Prospect converti en client avec succes.");
+            return "redirect:/clients/details/" + client.getId();
+        } catch (ProspectNonTrouveException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/prospects/list";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/prospects/details/" + id;
+        }
+    }
+
     private Utilisateur getLoggedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();

@@ -20,6 +20,8 @@
         .detail-item span { display: block; color: #fff; font-size: 1rem; background-color: #1e2a3a; padding: 12px 14px; border-radius: 6px; }
         .btn-secondary { display: inline-block; margin-top: 20px; padding: 10px 18px; background-color: #4fc3f7; color: #fff; text-decoration: none; border-radius: 5px; }
         .btn-secondary:hover { background-color: #3ab0e0; }
+        .btn-convert { display: inline-block; padding: 12px 24px; background-color: #4caf50; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; font-weight: bold; }
+        .btn-convert:hover { background-color: #43a047; }
     </style>
 </head>
 <body>
@@ -61,7 +63,21 @@
                 <span th:text="${prospect.utilisateur.nom}"></span>
             </div>
 
-            <a class="btn-secondary" href="/prospects/list">Retour à la liste</a>
+            <!-- Bouton de conversion (visible seulement si le prospect n'est pas deja converti) -->
+            <div th:if="${prospect.statut.name() != 'CONVERTI'}" style="margin-top: 25px; padding: 20px; background-color: #1e2a3a; border-radius: 8px; border: 1px solid #4fc3f7;">
+                <h3 style="color: #4fc3f7; margin-top: 0; font-size: 1rem;">Convertir en client</h3>
+                <p style="color: #b0bec5; font-size: 0.9rem; margin-bottom: 15px;">
+                    Cette action va créer un nouveau client avec les informations du prospect et marquer ce prospect comme converti.
+                </p>
+                <a th:href="@{/prospects/convert/{id}(id=${prospect.id})}" class="btn-convert" onclick="return confirm('Êtes-vous sûr de vouloir convertir ce prospect en client ?');">Convertir en client</a>
+            </div>
+
+            <!-- Message pour les prospects deja convertis -->
+            <div th:if="${prospect.statut.name() == 'CONVERTI'}" style="margin-top: 25px; padding: 15px; background-color: #2e7d32; border-radius: 8px; text-align: center;">
+                <span style="color: #fff; font-weight: bold;">✓ Ce prospect a déjà été converti en client.</span>
+            </div>
+
+            <a class="btn-secondary" href="/prospects/list" style="margin-top: 15px;">Retour à la liste</a>
         </div>
     </div>
 </body>
