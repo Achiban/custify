@@ -202,6 +202,80 @@
         .client-link:hover {
             text-decoration: underline;
         }
+
+        /* Prochaine Action Ideale (Next Best Action) */
+        .next-best-action-card {
+            background-color: #263645;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .nba-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .nba-header i {
+            color: #4fc3f7;
+            margin-top: 2px;
+        }
+
+        .nba-header-text {
+            flex: 1;
+        }
+
+        .nba-header-text h3 {
+            color: #4fc3f7;
+            margin: 0 0 5px 0;
+            font-size: 1.2em;
+        }
+
+        .nba-subtitle {
+            color: #90caf9;
+            font-size: 0.85em;
+            margin: 0;
+            font-style: italic;
+        }
+
+        .nba-description {
+            color: #b0bec5;
+            margin: 10px 0 15px 0;
+            line-height: 1.6;
+        }
+
+        .nba-tags {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background-color: #354a5f;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-priorite {
+            background-color: rgba(255, 107, 107, 0.2);
+            color: #FF6B6B;
+            border: 1px solid #FF6B6B;
+        }
+
+        .badge-action {
+            background-color: rgba(79, 195, 247, 0.2);
+            color: #4fc3f7;
+            border: 1px solid #4fc3f7;
+        }
     </style>
 </head>
 
@@ -280,6 +354,22 @@
         <div class="detail-row">
             <div class="detail-label">Date de creation</div>
             <div class="detail-value" th:text="${#temporals.format(opportunite.dateCreation, 'dd/MM/yyyy HH:mm')}"></div>
+        </div>
+    </div>
+
+    <!-- PROCHAINE ACTION IDEALE (Next Best Action) -->
+    <div th:if="${nextBestAction}" class="next-best-action-card" th:style="'border-left: 5px solid ' + ${nextBestAction.couleur}">
+        <div class="nba-header">
+            <i th:class="'fas ' + ${nextBestAction.icone}" style="font-size: 1.5em;"></i>
+            <div class="nba-header-text">
+                <h3 th:text="${nextBestAction.titre}"></h3>
+                <p class="nba-subtitle" th:text="'Recommandé pour ce stade: ' + ${opportunite.statut}"></p>
+            </div>
+        </div>
+        <p class="nba-description" th:text="${nextBestAction.description}"></p>
+        <div class="nba-tags">
+            <span class="badge badge-priorite" th:text="'🎯 Priorité: ' + ${nextBestAction.priorite}"></span>
+            <span class="badge badge-action" th:text="'📋 Action: ' + ${nextBestAction.typeAction}"></span>
         </div>
     </div>
 

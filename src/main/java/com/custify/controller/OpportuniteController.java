@@ -1,6 +1,7 @@
 package com.custify.controller;
 
 import com.custify.dto.CreerOpportuniteRequest;
+import com.custify.dto.NextBestActionDTO;
 import com.custify.exception.AccesNonAutoriseException;
 import com.custify.exception.ClientNonTrouveException;
 import com.custify.exception.OpportuniteNonTrouveException;
@@ -11,6 +12,7 @@ import com.custify.model.enums.StatutOpportunite;
 import com.custify.repository.ClientRepository;
 import com.custify.repository.UtilisateurRepository;
 import com.custify.service.ClientService;
+import com.custify.service.NextBestActionRecommendationService;
 import com.custify.service.OpportuniteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -41,6 +43,9 @@ public class OpportuniteController {
 
     @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
+    private NextBestActionRecommendationService nextBestActionService;
 
     @GetMapping("")
     public String indexOpportunites() {
@@ -117,6 +122,11 @@ public class OpportuniteController {
         try {
             Opportunite opportunite = opportuniteService.getOpportuniteForUser(id, getLoggedUser());
             model.addAttribute("opportunite", opportunite);
+
+            // Ajouter la prochaine action idéale (Next Best Action)
+            NextBestActionDTO nextBestAction = nextBestActionService.getNextBestActionForOpportunite(opportunite);
+            model.addAttribute("nextBestAction", nextBestAction);
+
             return "opportunites/details";
         } catch (OpportuniteNonTrouveException | AccesNonAutoriseException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
