@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Details Opportunite - Custify</title>
+
+    <style>
+        body {
+            background-color: #1e2a3a;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+        }
+
+        .sidebar {
+            background-color: #16212e;
+            height: 100vh;
+            padding: 20px 0;
+            position: fixed;
+            width: 200px;
+            inset: 0 auto 0 0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            color: #4fc3f7;
+            font-weight: bold;
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-nav li {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .sidebar-nav li:hover {
+            background-color: #1e2a3a;
+        }
+        .sidebar-nav li a {
+            color: #b0bec5;
+            text-decoration: none;
+            display: block;
+        }
+        .logout-btn {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            cursor: pointer;
+        }
+
+        .main {
+            margin-left: 220px;
+            padding: 30px;
+            max-width: 900px;
+        }
+
+        h2 {
+            color: #4fc3f7;
+            margin-bottom: 20px;
+        }
+
+        .detail-card {
+            background-color: #263645;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #3a4a5c;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            width: 200px;
+            color: #4fc3f7;
+            font-weight: bold;
+        }
+
+        .detail-value {
+            flex: 1;
+            color: #fff;
+        }
+
+        .statut-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .statut-OUVERTE {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .statut-EN_COURS {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .statut-GAGNEE {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .statut-PERDUE {
+            background-color: #F44336;
+            color: white;
+        }
+
+        .montant {
+            font-weight: bold;
+            color: #4CAF50;
+            font-size: 1.2em;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background-color: #4fc3f7;
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background-color: #29b6f6;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+        }
+
+        .btn-secondary:hover {
+            background-color: #777;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .alert-error {
+            background-color: #4a1f1f;
+            border: 1px solid #e74c3c;
+            color: #ffb3b3;
+        }
+
+        .back-link {
+            color: #4fc3f7;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .client-link {
+            color: #4fc3f7;
+            text-decoration: none;
+        }
+
+        .client-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-brand">Custify
+            <span sec:authorize="hasRole('ADMIN')">ADMIN</span>
+            <span sec:authorize="hasRole('COMMERCIAL')">COMMERCIAL</span>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="/dashboard">Dashboard</a></li>
+
+            <li sec:authorize="hasRole('ADMIN')">
+                <a href="/users">Utilisateurs</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/clients">Clients</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/prospects">Prospects</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/opportunites">Opportunites</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/interactions">Interactions</a>
+            </li>
+        </ul>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Deconnexion</button>
+        </form>
+    </div>
+
+<div class="main">
+
+    <a href="/opportunites/list" class="back-link">&larr; Retour a la liste</a>
+
+    <h2>Details de l'opportunite</h2>
+
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <div class="detail-card" th:if="${opportunite}">
+        <div class="detail-row">
+            <div class="detail-label">Titre</div>
+            <div class="detail-value" th:text="${opportunite.titre}"></div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Client</div>
+            <div class="detail-value">
+                <a th:href="@{'/clients/details/' + ${opportunite.client.id}}" class="client-link"
+                   th:text="${opportunite.client.nom}"></a>
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Montant</div>
+            <div class="detail-value">
+                <span class="montant" th:text="${#numbers.formatDecimal(opportunite.montant, 0, 'COMMA', 2, 'POINT')} + ' MAD'"></span>
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Statut</div>
+            <div class="detail-value">
+                <span class="statut-badge" th:classappend="'statut-' + ${opportunite.statut}"
+                      th:text="${opportunite.statut}"></span>
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Date de creation</div>
+            <div class="detail-value" th:text="${#temporals.format(opportunite.dateCreation, 'dd/MM/yyyy HH:mm')}"></div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a th:href="@{'/opportunites/edit/' + ${opportunite.id}}" class="btn">Modifier</a>
+        <a href="/opportunites/list" class="btn btn-secondary">Retour a la liste</a>
+    </div>
+
+</div>
+
+</body>
+</html>

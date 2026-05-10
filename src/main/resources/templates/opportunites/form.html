@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Nouvelle Opportunite - Custify</title>
+
+    <style>
+        body {
+            background-color: #1e2a3a;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+        }
+
+        .sidebar {
+            background-color: #16212e;
+            height: 100vh;
+            padding: 20px 0;
+            position: fixed;
+            width: 200px;
+            inset: 0 auto 0 0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            color: #4fc3f7;
+            font-weight: bold;
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-nav li {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .sidebar-nav li:hover {
+            background-color: #1e2a3a;
+        }
+        .sidebar-nav li a {
+            color: #b0bec5;
+            text-decoration: none;
+            display: block;
+        }
+        .logout-btn {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            cursor: pointer;
+        }
+
+        .main {
+            margin-left: 220px;
+            padding: 30px;
+            max-width: 800px;
+        }
+
+        h2 {
+            color: #4fc3f7;
+            margin-bottom: 20px;
+        }
+
+        .form-container {
+            background-color: #263645;
+            padding: 30px;
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4fc3f7;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #4fc3f7;
+            border-radius: 5px;
+            background-color: #1e2a3a;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #29b6f6;
+        }
+
+        .form-group small {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            background-color: #4fc3f7;
+            padding: 12px 24px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+        }
+
+        .btn:hover {
+            background-color: #29b6f6;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+        }
+
+        .btn-secondary:hover {
+            background-color: #777;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .alert-error {
+            background-color: #4a1f1f;
+            border: 1px solid #e74c3c;
+            color: #ffb3b3;
+        }
+
+        .required::after {
+            content: " *";
+            color: #e74c3c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-brand">Custify
+            <span sec:authorize="hasRole('ADMIN')">ADMIN</span>
+            <span sec:authorize="hasRole('COMMERCIAL')">COMMERCIAL</span>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="/dashboard">Dashboard</a></li>
+
+            <li sec:authorize="hasRole('ADMIN')">
+                <a href="/users">Utilisateurs</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/clients">Clients</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/prospects">Prospects</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/opportunites">Opportunites</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/interactions">Interactions</a>
+            </li>
+        </ul>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Deconnexion</button>
+        </form>
+    </div>
+
+<div class="main">
+
+    <h2>Creer une nouvelle opportunite</h2>
+
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <div class="form-container">
+        <form th:action="@{/opportunites/save}" th:object="${opportuniteRequest}" method="post">
+
+            <div class="form-group">
+                <label for="titre" class="required">Titre</label>
+                <input type="text" id="titre" th:field="*{titre}" required
+                       placeholder="Ex: Vente logiciel - Entreprise X">
+            </div>
+
+            <div class="form-group">
+                <label for="clientId" class="required">Client</label>
+                <select id="clientId" th:field="*{clientId}" required>
+                    <option value="">-- Selectionner un client --</option>
+                    <option th:each="client : ${clients}"
+                            th:value="${client.id}"
+                            th:text="${client.nom}"></option>
+                </select>
+                <small>Pas de client ? <a href="/clients/new">Creer un client</a></small>
+            </div>
+
+            <div class="form-group">
+                <label for="montant">Montant (MAD)</label>
+                <input type="number" id="montant" th:field="*{montant}"
+                       step="0.01" min="0" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label for="statut">Statut</label>
+                <select id="statut" th:field="*{statut}">
+                    <option value="OUVERTE">Ouverte</option>
+                    <option value="EN_COURS">En cours</option>
+                    <option value="GAGNEE">Gagnee</option>
+                    <option value="PERDUE">Perdue</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn">Creer l'opportunite</button>
+                <a href="/opportunites/list" class="btn btn-secondary">Annuler</a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

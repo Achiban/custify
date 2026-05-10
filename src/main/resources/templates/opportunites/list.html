@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Opportunites - Custify</title>
+
+    <style>
+        body {
+            background-color: #1e2a3a;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+        }
+
+        .sidebar {
+            background-color: #16212e;
+            height: 100vh;
+            padding: 20px 0;
+            position: fixed;
+            width: 200px;
+            inset: 0 auto 0 0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            color: #4fc3f7;
+            font-weight: bold;
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-nav li {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .sidebar-nav li:hover {
+            background-color: #1e2a3a;
+        }
+        .sidebar-nav li a {
+            color: #b0bec5;
+            text-decoration: none;
+            display: block;
+        }
+        .logout-btn {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            cursor: pointer;
+        }
+
+        .main {
+            margin-left: 220px;
+            padding: 30px;
+        }
+
+        .filter-container {
+            background-color: #263645;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .filter-container h3 {
+            margin-top: 0;
+            color: #4fc3f7;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-item label {
+            margin-bottom: 5px;
+            color: #4fc3f7;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .filter-item select {
+            padding: 8px;
+            border: 1px solid #4fc3f7;
+            border-radius: 5px;
+            background-color: #1e2a3a;
+            color: #fff;
+            min-width: 150px;
+        }
+
+        .buttons-section {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: #4fc3f7;
+            padding: 10px 15px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background-color: #29b6f6;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+        }
+
+        .btn-secondary:hover {
+            background-color: #777;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #263645;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #3a4a5c;
+            text-align: left;
+        }
+
+        th {
+            color: #4fc3f7;
+            font-weight: bold;
+        }
+
+        a {
+            color: #4fc3f7;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-size: 1.1em;
+        }
+
+        .results-info {
+            color: #4fc3f7;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .alert-success {
+            background-color: #1f3d24;
+            border: 1px solid #2ecc71;
+            color: #b3ffcc;
+        }
+
+        .alert-error {
+            background-color: #4a1f1f;
+            border: 1px solid #e74c3c;
+            color: #ffb3b3;
+        }
+
+        .statut-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .statut-OUVERTE {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .statut-EN_COURS {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .statut-GAGNEE {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .statut-PERDUE {
+            background-color: #F44336;
+            color: white;
+        }
+
+        .delete-form {
+            display: inline;
+        }
+
+        .btn-link {
+            background: none;
+            border: none;
+            color: #4fc3f7;
+            cursor: pointer;
+            padding: 0;
+            font: inherit;
+            text-decoration: none;
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-link.danger {
+            color: #e74c3c;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(10, 15, 22, 0.65);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.is-open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal {
+            background-color: #263645;
+            border: 1px solid #3a4a5c;
+            border-radius: 10px;
+            padding: 28px;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transform: translateY(8px);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-overlay.is-open .modal {
+            transform: translateY(0);
+        }
+
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: rgba(231, 76, 60, 0.15);
+            color: #e74c3c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            color: #fff;
+            font-size: 1.25rem;
+            margin: 0 0 8px 0;
+        }
+
+        .modal-message {
+            color: #b0bec5;
+            line-height: 1.5;
+            margin: 0 0 20px 0;
+        }
+
+        .modal-target {
+            color: #4fc3f7;
+            font-weight: bold;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-modal {
+            padding: 10px 18px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-cancel {
+            background-color: transparent;
+            color: #b0bec5;
+            border: 1px solid #3a4a5c;
+        }
+
+        .btn-cancel:hover {
+            background-color: #1e2a3a;
+            color: #fff;
+        }
+
+        .btn-confirm-delete {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-confirm-delete:hover {
+            background-color: #c0392b;
+        }
+
+        .montant {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-brand">Custify
+            <span sec:authorize="hasRole('ADMIN')">ADMIN</span>
+            <span sec:authorize="hasRole('COMMERCIAL')">COMMERCIAL</span>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="/dashboard">Dashboard</a></li>
+
+            <li sec:authorize="hasRole('ADMIN')">
+                <a href="/users">Utilisateurs</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/clients">Clients</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/prospects">Prospects</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/opportunites">Opportunites</a>
+            </li>
+
+            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')">
+                <a href="/interactions">Interactions</a>
+            </li>
+        </ul>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Deconnexion</button>
+        </form>
+    </div>
+
+<div class="main">
+
+    <h2>Gestion des Opportunites</h2>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <a class="btn" href="/opportunites/new">+ Ajouter Opportunite</a>
+
+    <br><br>
+
+    <!-- FILTER SECTION -->
+    <div class="filter-container">
+        <h3>Filtrer par statut</h3>
+
+        <form method="GET" action="/opportunites/list">
+            <div class="filter-section">
+                <div class="filter-item">
+                    <label for="filtreStatut">Statut:</label>
+                    <select id="filtreStatut" name="filtreStatut">
+                        <option value="">Tous les statuts</option>
+                        <option value="OUVERTE" th:selected="${filtreStatut == 'OUVERTE'}">Ouverte</option>
+                        <option value="EN_COURS" th:selected="${filtreStatut == 'EN_COURS'}">En cours</option>
+                        <option value="GAGNEE" th:selected="${filtreStatut == 'GAGNEE'}">Gagnee</option>
+                        <option value="PERDUE" th:selected="${filtreStatut == 'PERDUE'}">Perdue</option>
+                    </select>
+                </div>
+                <div class="buttons-section">
+                    <button type="submit" class="btn">Filtrer</button>
+                    <a href="/opportunites/list" class="btn btn-secondary">x Reinitialiser</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- RESULTS INFO -->
+    <div class="results-info" th:if="${filtreStatut}">
+        Filtres par statut: <strong th:text="${filtreStatut}"></strong>
+        (<span th:text="${opportunites.size()}"></span> resultat(s))
+    </div>
+
+    <!-- OPPORTUNITIES TABLE -->
+    <div th:if="${opportunites.size() > 0}">
+        <table>
+            <tr>
+                <th>Titre</th>
+                <th>Client</th>
+                <th>Montant</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+
+            <tr th:each="opp : ${opportunites}">
+                <td th:text="${opp.titre}"></td>
+                <td th:text="${opp.client.nom}"></td>
+                <td class="montant" th:text="${#numbers.formatDecimal(opp.montant, 0, 'COMMA', 2, 'POINT')} + ' MAD'"></td>
+                <td>
+                    <span class="statut-badge" th:classappend="'statut-' + ${opp.statut}" th:text="${opp.statut}"></span>
+                </td>
+
+                <td>
+                    <a th:href="@{'/opportunites/details/' + ${opp.id}}">Voir</a> |
+                    <a th:href="@{'/opportunites/edit/' + ${opp.id}}">Modifier</a> |
+                    <form class="delete-form" th:action="@{'/opportunites/delete/' + ${opp.id}}" method="post">
+                        <button type="button" class="btn-link danger"
+                                th:attr="data-opp-titre=${opp.titre}"
+                                onclick="openDeleteModal(this)">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- NO RESULTS MESSAGE -->
+    <div th:if="${opportunites.size() == 0}" class="no-results">
+        <p>Aucune opportunite trouvee.</p>
+        <p><a href="/opportunites/new" style="color: #4fc3f7;">+ Creer une opportunite</a></p>
+    </div>
+
+</div>
+
+<div id="deleteModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+    <div class="modal">
+        <div class="modal-icon">!</div>
+        <h3 id="deleteModalTitle" class="modal-title">Supprimer cette opportunite ?</h3>
+        <p class="modal-message">
+            Vous etes sur le point de supprimer <span id="deleteModalTarget" class="modal-target"></span>.
+            Cette action est <strong>irreversible</strong>.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn-modal btn-cancel" onclick="closeDeleteModal()">Annuler</button>
+            <button type="button" id="deleteModalConfirm" class="btn-modal btn-confirm-delete">Supprimer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let formAConfirmer = null;
+
+    function openDeleteModal(bouton) {
+        formAConfirmer = bouton.closest('form');
+        const titre = bouton.getAttribute('data-opp-titre') || 'cette opportunite';
+        document.getElementById('deleteModalTarget').textContent = titre;
+        document.getElementById('deleteModal').classList.add('is-open');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('is-open');
+        formAConfirmer = null;
+    }
+
+    document.getElementById('deleteModalConfirm').addEventListener('click', function () {
+        if (formAConfirmer) {
+            formAConfirmer.submit();
+        }
+    });
+
+    document.getElementById('deleteModal').addEventListener('click', function (e) {
+        if (e.target === this) closeDeleteModal();
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeDeleteModal();
+    });
+</script>
+
+</body>
+</html>
