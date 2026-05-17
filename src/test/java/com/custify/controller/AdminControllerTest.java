@@ -10,6 +10,10 @@ import com.custify.dto.CreerUtilisateurRequest;
 import com.custify.dto.ModifierRoleRequest;
 import com.custify.dto.UtilisateurResponse;
 import com.custify.model.enums.Role;
+import com.custify.repository.AffectationRepository;
+import com.custify.repository.DemandeOpportuniteRepository;
+import com.custify.repository.OpportuniteRepository;
+import com.custify.repository.ReunionRepository;
 import com.custify.repository.UtilisateurRepository;
 import com.custify.service.UtilisateurService;
 import java.util.List;
@@ -27,12 +31,19 @@ class AdminControllerTest {
 
     @Mock private UtilisateurService utilisateurService;
     @Mock private UtilisateurRepository utilisateurRepository;
+    @Mock private OpportuniteRepository opportuniteRepository;
+    @Mock private DemandeOpportuniteRepository demandeRepository;
+    @Mock private AffectationRepository affectationRepository;
+    @Mock private ReunionRepository reunionRepository;
 
     private AdminController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new AdminController(utilisateurService, utilisateurRepository);
+        controller = new AdminController(
+                utilisateurService, utilisateurRepository,
+                opportuniteRepository, demandeRepository,
+                affectationRepository, reunionRepository);
     }
 
     @Test
