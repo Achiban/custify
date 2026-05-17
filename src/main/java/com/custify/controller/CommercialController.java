@@ -1,13 +1,19 @@
 package com.custify.controller;
 
 import com.custify.dto.CreerAffectationRequest;
+import com.custify.model.Affectation;
+import com.custify.model.Reunion;
 import com.custify.model.Utilisateur;
 import com.custify.model.enums.Role;
+import com.custify.model.enums.StatutAffectation;
 import com.custify.repository.UtilisateurRepository;
 import com.custify.service.AffectationService;
 import com.custify.service.DemandeService;
 import com.custify.service.OpportuniteMarketplaceService;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -48,10 +54,45 @@ public class CommercialController {
     public String dashboard(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         Utilisateur commercial = getCommercial(userDetails);
         model.addAttribute("commercial", commercial);
-        model.addAttribute("totalClients", utilisateurRepository.findByRole(Role.CLIENT).size());
+
+        // ── Demandes à traiter ────────────────────────────────────────────────
         model.addAttribute("totalDemandes", demandeService.listerEnAttente().size());
-        model.addAttribute("totalAffectations", affectationService.listerParCommercial(commercial).size());
-        model.addAttribute("totalReunions", reunionService.listerParCommercial(commercial).size());
+
+        // ── Mes affectations (breakdown par statut) ───────────────────────────
+        List<Affectation> mesAffectations = affectationService.listerParCommercial(commercial);
+        long affEnAttente = mesAffectations.stream()
+                .filter(a -> a.getStatutClient() == StatutAffectation.EN_ATTENTE).count();
+        long affAcceptees = mesAffectations.stream()
+                .filter(a -> a.getStatutClient() == StatutAffectation.ACCEPTEE).count();
+        long affRefusees  = mesAffectations.stream()
+                .filter(a -> a.getStatutClient() == StatutAffectation.REFUSEE).count();
+        long clientsGeres = mesAffectations.stream()
+                .filter(a -> a.getStatutClient() == StatutAffectation.ACCEPTEE)
+                .map(a -> a.getClientBeneficiaire().getId())
+                .distinct().count();
+        int tauxSucces = (affAcceptees + affRefusees) > 0
+                ? (int) (affAcceptees * 100L / (affAcceptees + affRefusees)) : 0;
+
+        model.addAttribute("totalAffectations", mesAffectations.size());
+        model.addAttribute("affEnAttente",  affEnAttente);
+        model.addAttribute("affAcceptees",  affAcceptees);
+        model.addAttribute("affRefusees",   affRefusees);
+        model.addAttribute("clientsGeres",  clientsGeres);
+        model.addAttribute("tauxSuccesAffectations", tauxSucces);
+
+        // ── Réunions (total + 3 prochaines) ──────────────────────────────────
+        List<Reunion> mesReunions = reunionService.listerParCommercial(commercial);
+        List<Reunion> prochainesReunions = mesReunions.stream()
+                .filter(r -> r.getDateReunion().isAfter(LocalDateTime.now()))
+                .sorted(Comparator.comparing(Reunion::getDateReunion))
+                .limit(3)
+                .toList();
+        model.addAttribute("totalReunions", mesReunions.size());
+        model.addAttribute("prochainesReunions", prochainesReunions);
+
+        // ── Opportunités disponibles sur la plateforme ────────────────────────
+        model.addAttribute("totalOppDisponibles", opportuniteService.listerDisponibles().size());
+
         return "commercial/dashboard";
     }
 
