@@ -13,8 +13,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.CascadeType;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -51,6 +52,9 @@ public class Opportunite {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_vendeur", nullable = false)
     private Utilisateur clientVendeur;
+
+    @OneToOne(mappedBy = "opportunite", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Conversation conversation;
 
     @PrePersist
     void prePersist() {
