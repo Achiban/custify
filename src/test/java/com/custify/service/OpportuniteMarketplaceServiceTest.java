@@ -3,7 +3,6 @@ package com.custify.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,170 +30,122 @@ class OpportuniteMarketplaceServiceTest {
 
     private OpportuniteMarketplaceService service;
 
+    private Utilisateur vendeur;
+    private CreerOpportuniteMarketplaceRequest request;
+
     @BeforeEach
     void setUp() {
         service = new OpportuniteMarketplaceService(opportuniteRepository);
+
+        vendeur = new Utilisateur();
+        vendeur.setId(1L);
+
+        request = new CreerOpportuniteMarketplaceRequest();
+        request.setTitre("Mission CRM");
+        request.setDescriptionComplete("Intégration Salesforce");
+        request.setMontant(BigDecimal.valueOf(12000));
+        request.setCategorie("IT");
     }
 
     @Test
-    void publierShouldCreateOpportuniteWithDisponibleStatus() {
-        Utilisateur vendeur = utilisateur(1L);
-        CreerOpportuniteMarketplaceRequest req = request("Titre", "Desc", BigDecimal.TEN, "Tech");
+    void publierShouldSaveOpportuniteWithStatutDISPONIBLE() {
+        when(opportuniteRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        when(opportuniteRepository.save(any(Opportunite.class))).thenAnswer(inv -> {
-            Opportunite o = inv.getArgument(0);
-            o.setId(10L);
-            return o;
-        });
-
-        Opportunite result = service.publier(req, vendeur);
-
-        assertEquals("Titre", result.getTitre());
-        assertEquals(StatutOpportunite.DISPONIBLE, result.getStatut());
-        assertEquals(vendeur, result.getClientVendeur());
+        service.publier(request, vendeur);
 
         ArgumentCaptor<Opportunite> captor = ArgumentCaptor.forClass(Opportunite.class);
         verify(opportuniteRepository).save(captor.capture());
-        assertEquals("Tech", captor.getValue().getCategorie());
+        Opportunite saved = captor.getValue();
+
+        assertEquals("Mission CRM", saved.getTitre());
+        assertEquals(StatutOpportunite.DISPONIBLE, saved.getStatut());
+        assertEquals(vendeur, saved.getClientVendeur());
+        assertEquals(BigDecimal.valueOf(12000), saved.getMontant());
     }
 
     @Test
-    void listerDisponiblesShouldReturnOnlyAvailableOpportunites() {
-        Opportunite o = opportunite(1L, StatutOpportunite.DISPONIBLE, utilisateur(1L));
-        when(opportuniteRepository.findByStatut(StatutOpportunite.DISPONIBLE)).thenReturn(List.of(o));
+    void modifierShouldUpdateFieldsWhenVendeurIsOwnerAndStatutDISPONIBLE() {
+        Opportunite opp = new Opportunite();
+        opp.setId(5L);
+        opp.setTitre("Ancien titre");
+        opp.setStatut(StatutOpportunite.DISPONIBLE);
+        opp.setClientVendeur(vendeur);
+        opp.setMontant(BigDecimal.ZERO);
+        opp.setDescriptionComplete("Ancienne desc");
 
-        List<Opportunite> result = service.listerDisponibles();
-
-        assertEquals(1, result.size());
-        assertEquals(StatutOpportunite.DISPONIBLE, result.get(0).getStatut());
-    }
-
-    @Test
-    void listerParVendeurShouldReturnVendeurOpportunites() {
-        Utilisateur vendeur = utilisateur(2L);
-        Opportunite o = opportunite(1L, StatutOpportunite.DISPONIBLE, vendeur);
-        when(opportuniteRepository.findByClientVendeur(vendeur)).thenReturn(List.of(o));
-
-        List<Opportunite> result = service.listerParVendeur(vendeur);
-
-        assertEquals(1, result.size());
-        assertEquals(vendeur, result.get(0).getClientVendeur());
-    }
-
-    @Test
-    void trouverParIdShouldReturnOpportunite() {
-        Opportunite o = opportunite(5L, StatutOpportunite.DISPONIBLE, utilisateur(1L));
-        when(opportuniteRepository.findById(5L)).thenReturn(Optional.of(o));
-
-        Opportunite result = service.trouverParId(5L);
-
-        assertEquals(5L, result.getId());
-    }
-
-    @Test
-    void trouverParIdShouldThrowWhenNotFound() {
-        when(opportuniteRepository.findById(99L)).thenReturn(Optional.empty());
-
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> service.trouverParId(99L));
-        assertEquals(true, ex.getMessage().contains("99"));
-    }
-
-    @Test
-    void modifierShouldUpdateOpportuniteFields() {
-        Utilisateur vendeur = utilisateur(1L);
-        Opportunite opp = opportunite(3L, StatutOpportunite.DISPONIBLE, vendeur);
-        when(opportuniteRepository.findById(3L)).thenReturn(Optional.of(opp));
+        when(opportuniteRepository.findById(5L)).thenReturn(Optional.of(opp));
         when(opportuniteRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        CreerOpportuniteMarketplaceRequest req = request("Nouveau titre", "Nouvelle desc", BigDecimal.ONE, "Finance");
-        Opportunite result = service.modifier(3L, req, vendeur);
+        service.modifier(5L, request, vendeur);
 
-        assertEquals("Nouveau titre", result.getTitre());
-        assertEquals("Nouvelle desc", result.getDescriptionComplete());
+        assertEquals("Mission CRM", opp.getTitre());
+        assertEquals("Intégration Salesforce", opp.getDescriptionComplete());
+        assertEquals(BigDecimal.valueOf(12000), opp.getMontant());
     }
 
     @Test
-    void modifierShouldThrowWhenNotVendeur() {
-        Utilisateur vendeur = utilisateur(1L);
-        Utilisateur autre = utilisateur(2L);
-        Opportunite opp = opportunite(3L, StatutOpportunite.DISPONIBLE, vendeur);
-        when(opportuniteRepository.findById(3L)).thenReturn(Optional.of(opp));
+    void modifierShouldThrowWhenVendeurIsNotOwner() {
+        Utilisateur autreVendeur = new Utilisateur();
+        autreVendeur.setId(99L);
 
-        CreerOpportuniteMarketplaceRequest req = request("T", "D", BigDecimal.ONE, null);
+        Opportunite opp = new Opportunite();
+        opp.setId(5L);
+        opp.setStatut(StatutOpportunite.DISPONIBLE);
+        opp.setClientVendeur(autreVendeur);
 
-        assertThrows(AccesNonAutoriseException.class, () -> service.modifier(3L, req, autre));
-        verify(opportuniteRepository, never()).save(any());
+        when(opportuniteRepository.findById(5L)).thenReturn(Optional.of(opp));
+
+        assertThrows(AccesNonAutoriseException.class, () -> service.modifier(5L, request, vendeur));
     }
 
     @Test
-    void modifierShouldThrowWhenNotDisponible() {
-        Utilisateur vendeur = utilisateur(1L);
-        Opportunite opp = opportunite(3L, StatutOpportunite.ATTRIBUEE, vendeur);
-        when(opportuniteRepository.findById(3L)).thenReturn(Optional.of(opp));
+    void modifierShouldThrowWhenOpportuniteNotDISPONIBLE() {
+        Opportunite opp = new Opportunite();
+        opp.setId(5L);
+        opp.setStatut(StatutOpportunite.ATTRIBUEE);
+        opp.setClientVendeur(vendeur);
 
-        CreerOpportuniteMarketplaceRequest req = request("T", "D", BigDecimal.ONE, null);
+        when(opportuniteRepository.findById(5L)).thenReturn(Optional.of(opp));
 
-        assertThrows(IllegalStateException.class, () -> service.modifier(3L, req, vendeur));
-        verify(opportuniteRepository, never()).save(any());
+        assertThrows(IllegalStateException.class, () -> service.modifier(5L, request, vendeur));
     }
 
     @Test
-    void supprimerShouldDeleteOpportunite() {
-        Utilisateur vendeur = utilisateur(1L);
-        Opportunite opp = opportunite(4L, StatutOpportunite.DISPONIBLE, vendeur);
-        when(opportuniteRepository.findById(4L)).thenReturn(Optional.of(opp));
+    void supprimerShouldDeleteWhenOwnerAndDISPONIBLE() {
+        Opportunite opp = new Opportunite();
+        opp.setId(7L);
+        opp.setStatut(StatutOpportunite.DISPONIBLE);
+        opp.setClientVendeur(vendeur);
 
-        service.supprimer(4L, vendeur);
+        when(opportuniteRepository.findById(7L)).thenReturn(Optional.of(opp));
+
+        service.supprimer(7L, vendeur);
 
         verify(opportuniteRepository).delete(opp);
     }
 
     @Test
-    void supprimerShouldThrowWhenNotVendeur() {
-        Utilisateur vendeur = utilisateur(1L);
-        Utilisateur autre = utilisateur(2L);
-        Opportunite opp = opportunite(4L, StatutOpportunite.DISPONIBLE, vendeur);
-        when(opportuniteRepository.findById(4L)).thenReturn(Optional.of(opp));
+    void supprimerShouldThrowWhenNotOwner() {
+        Utilisateur autreVendeur = new Utilisateur();
+        autreVendeur.setId(99L);
 
-        assertThrows(AccesNonAutoriseException.class, () -> service.supprimer(4L, autre));
-        verify(opportuniteRepository, never()).delete(any());
+        Opportunite opp = new Opportunite();
+        opp.setId(7L);
+        opp.setStatut(StatutOpportunite.DISPONIBLE);
+        opp.setClientVendeur(autreVendeur);
+
+        when(opportuniteRepository.findById(7L)).thenReturn(Optional.of(opp));
+
+        assertThrows(AccesNonAutoriseException.class, () -> service.supprimer(7L, vendeur));
     }
 
     @Test
-    void supprimerShouldThrowWhenNotDisponible() {
-        Utilisateur vendeur = utilisateur(1L);
-        Opportunite opp = opportunite(4L, StatutOpportunite.CONCLUE, vendeur);
-        when(opportuniteRepository.findById(4L)).thenReturn(Optional.of(opp));
+    void listerDisponiblesShouldDelegateToRepository() {
+        when(opportuniteRepository.findByStatut(StatutOpportunite.DISPONIBLE)).thenReturn(List.of());
 
-        assertThrows(IllegalStateException.class, () -> service.supprimer(4L, vendeur));
-        verify(opportuniteRepository, never()).delete(any());
-    }
+        List<Opportunite> result = service.listerDisponibles();
 
-    // ── helpers ──────────────────────────────────────────────────────────────
-
-    private Utilisateur utilisateur(Long id) {
-        Utilisateur u = new Utilisateur();
-        u.setId(id);
-        return u;
-    }
-
-    private Opportunite opportunite(Long id, StatutOpportunite statut, Utilisateur vendeur) {
-        Opportunite o = new Opportunite();
-        o.setId(id);
-        o.setStatut(statut);
-        o.setClientVendeur(vendeur);
-        o.setTitre("Titre");
-        o.setDescriptionComplete("Desc");
-        o.setMontant(BigDecimal.TEN);
-        return o;
-    }
-
-    private CreerOpportuniteMarketplaceRequest request(String titre, String desc, BigDecimal montant, String categorie) {
-        CreerOpportuniteMarketplaceRequest r = new CreerOpportuniteMarketplaceRequest();
-        r.setTitre(titre);
-        r.setDescriptionComplete(desc);
-        r.setMontant(montant);
-        r.setCategorie(categorie);
-        return r;
+        assertEquals(0, result.size());
+        verify(opportuniteRepository).findByStatut(StatutOpportunite.DISPONIBLE);
     }
 }

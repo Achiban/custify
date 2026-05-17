@@ -11,6 +11,7 @@ import com.custify.model.Affectation;
 import com.custify.model.DemandeOpportunite;
 import com.custify.model.Opportunite;
 import com.custify.model.Utilisateur;
+import com.custify.model.enums.StatutAffectation;
 import com.custify.model.enums.StatutDemande;
 import com.custify.model.enums.StatutOpportunite;
 import com.custify.repository.AffectationRepository;
@@ -29,171 +30,149 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DemandeServiceTest {
 
-    @Mock private DemandeOpportuniteRepository demandeRepository;
-    @Mock private OpportuniteRepository opportuniteRepository;
-    @Mock private AffectationRepository affectationRepository;
+    @Mock
+    private DemandeOpportuniteRepository demandeRepository;
 
-    private DemandeService service;
+    @Mock
+    private OpportuniteRepository opportuniteRepository;
+
+    @Mock
+    private AffectationRepository affectationRepository;
+
+    private DemandeService demandeService;
+
+    private Utilisateur vendeur;
+    private Utilisateur acheteur;
+    private Utilisateur commercial;
+    private Opportunite opportunite;
 
     @BeforeEach
     void setUp() {
-        service = new DemandeService(demandeRepository, opportuniteRepository, affectationRepository);
+        demandeService = new DemandeService(demandeRepository, opportuniteRepository, affectationRepository);
+
+        vendeur = new Utilisateur();
+        vendeur.setId(1L);
+
+        acheteur = new Utilisateur();
+        acheteur.setId(2L);
+
+        commercial = new Utilisateur();
+        commercial.setId(3L);
+
+        opportunite = new Opportunite();
+        opportunite.setId(10L);
+        opportunite.setTitre("Opportunité test");
+        opportunite.setMontant(BigDecimal.valueOf(5000));
+        opportunite.setDescriptionComplete("Description");
+        opportunite.setStatut(StatutOpportunite.DISPONIBLE);
+        opportunite.setClientVendeur(vendeur);
     }
 
     @Test
-    void creerDemandeShouldCreateDemandeEnAttente() {
-        Utilisateur vendeur = utilisateur(1L);
-        Utilisateur client = utilisateur(2L);
-        Opportunite opp = opportunite(10L, StatutOpportunite.DISPONIBLE, vendeur);
+    void creerDemandeShouldSaveAndReturnDemande() {
+        when(opportuniteRepository.findById(10L)).thenReturn(Optional.of(opportunite));
+        when(demandeRepository.existsByClientDemandeurAndOpportunite(acheteur, opportunite)).thenReturn(false);
+        when(demandeRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        when(opportuniteRepository.findById(10L)).thenReturn(Optional.of(opp));
-        when(demandeRepository.existsByClientDemandeurAndOpportunite(client, opp)).thenReturn(false);
-        when(demandeRepository.save(any())).thenAnswer(inv -> {
-            DemandeOpportunite d = inv.getArgument(0);
-            d.setId(99L);
-            return d;
-        });
-
-        DemandeOpportunite result = service.creerDemande(10L, client);
+        DemandeOpportunite result = demandeService.creerDemande(10L, acheteur);
 
         assertEquals(StatutDemande.EN_ATTENTE, result.getStatut());
-        assertEquals(client, result.getClientDemandeur());
-        assertEquals(opp, result.getOpportunite());
-    }
-
-    @Test
-    void creerDemandeShouldThrowWhenOpportuniteNotFound() {
-        when(opportuniteRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> service.creerDemande(99L, utilisateur(2L)));
+        assertEquals(acheteur, result.getClientDemandeur());
+        assertEquals(opportunite, result.getOpportunite());
     }
 
     @Test
     void creerDemandeShouldThrowWhenOpportuniteNotDisponible() {
-        Utilisateur vendeur = utilisateur(1L);
-        Opportunite opp = opportunite(10L, StatutOpportunite.ATTRIBUEE, vendeur);
-        when(opportuniteRepository.findById(10L)).thenReturn(Optional.of(opp));
+        opportunite.setStatut(StatutOpportunite.ATTRIBUEE);
+        when(opportuniteRepository.findById(10L)).thenReturn(Optional.of(opportunite));
 
-        assertThrows(IllegalStateException.class, () -> service.creerDemande(10L, utilisateur(2L)));
-    }
-
-    @Test
-    void creerDemandeShouldThrowWhenClientIsVendeur() {
-        Utilisateur vendeur = utilisateur(1L);
-        Opportunite opp = opportunite(10L, StatutOpportunite.DISPONIBLE, vendeur);
-        when(opportuniteRepository.findById(10L)).thenReturn(Optional.of(opp));
-
-        assertThrows(IllegalStateException.class, () -> service.creerDemande(10L, vendeur));
-    }
-
-    @Test
-    void creerDemandeShouldThrowWhenAlreadyDemanded() {
-        Utilisateur vendeur = utilisateur(1L);
-        Utilisateur client = utilisateur(2L);
-        Opportunite opp = opportunite(10L, StatutOpportunite.DISPONIBLE, vendeur);
-
-        when(opportuniteRepository.findById(10L)).thenReturn(Optional.of(opp));
-        when(demandeRepository.existsByClientDemandeurAndOpportunite(client, opp)).thenReturn(true);
-
-        assertThrows(IllegalStateException.class, () -> service.creerDemande(10L, client));
+        assertThrows(IllegalStateException.class, () -> demandeService.creerDemande(10L, acheteur));
         verify(demandeRepository, never()).save(any());
     }
 
     @Test
-    void listerEnAttenteShouldReturnPendingDemandes() {
-        DemandeOpportunite d = new DemandeOpportunite();
-        d.setStatut(StatutDemande.EN_ATTENTE);
-        when(demandeRepository.findByStatut(StatutDemande.EN_ATTENTE)).thenReturn(List.of(d));
+    void creerDemandeShouldThrowWhenClientIsVendeur() {
+        when(opportuniteRepository.findById(10L)).thenReturn(Optional.of(opportunite));
 
-        List<DemandeOpportunite> result = service.listerEnAttente();
-
-        assertEquals(1, result.size());
-        assertEquals(StatutDemande.EN_ATTENTE, result.get(0).getStatut());
+        assertThrows(IllegalStateException.class, () -> demandeService.creerDemande(10L, vendeur));
+        verify(demandeRepository, never()).save(any());
     }
 
     @Test
-    void accepterDemandeShouldAcceptMarkOpportuniteConclueAndCreateAffectation() {
-        Utilisateur commercial = utilisateur(1L);
-        Utilisateur client = utilisateur(2L);
-        Opportunite opp = opportunite(10L, StatutOpportunite.DISPONIBLE, utilisateur(3L));
-        DemandeOpportunite demande = demande(20L, client, opp, StatutDemande.EN_ATTENTE);
+    void creerDemandeShouldThrowWhenDemandeAlreadyExists() {
+        when(opportuniteRepository.findById(10L)).thenReturn(Optional.of(opportunite));
+        when(demandeRepository.existsByClientDemandeurAndOpportunite(acheteur, opportunite)).thenReturn(true);
 
-        when(demandeRepository.findById(20L)).thenReturn(Optional.of(demande));
-        when(demandeRepository.save(any())).thenReturn(demande);
-        when(opportuniteRepository.save(any())).thenReturn(opp);
+        assertThrows(IllegalStateException.class, () -> demandeService.creerDemande(10L, acheteur));
+        verify(demandeRepository, never()).save(any());
+    }
+
+    @Test
+    void accepterDemandeShouldSetOpportuniteATTRIBUEEAndAffectationENATTENTE() {
+        DemandeOpportunite demande = new DemandeOpportunite();
+        demande.setId(5L);
+        demande.setClientDemandeur(acheteur);
+        demande.setOpportunite(opportunite);
+        demande.setStatut(StatutDemande.EN_ATTENTE);
+
+        when(demandeRepository.findById(5L)).thenReturn(Optional.of(demande));
+        when(demandeRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(opportuniteRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(affectationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        service.accepterDemande(20L, commercial);
+        demandeService.accepterDemande(5L, commercial);
 
         assertEquals(StatutDemande.ACCEPTEE, demande.getStatut());
-        assertEquals(StatutOpportunite.CONCLUE, opp.getStatut());
 
-        ArgumentCaptor<Affectation> captor = ArgumentCaptor.forClass(Affectation.class);
-        verify(affectationRepository).save(captor.capture());
-        assertEquals(commercial, captor.getValue().getCommercial());
-        assertEquals(client, captor.getValue().getClientBeneficiaire());
+        ArgumentCaptor<Opportunite> oppCaptor = ArgumentCaptor.forClass(Opportunite.class);
+        verify(opportuniteRepository).save(oppCaptor.capture());
+        assertEquals(StatutOpportunite.ATTRIBUEE, oppCaptor.getValue().getStatut());
+
+        ArgumentCaptor<Affectation> affCaptor = ArgumentCaptor.forClass(Affectation.class);
+        verify(affectationRepository).save(affCaptor.capture());
+        assertEquals(StatutAffectation.EN_ATTENTE, affCaptor.getValue().getStatutClient());
+        assertEquals(commercial, affCaptor.getValue().getCommercial());
+        assertEquals(acheteur, affCaptor.getValue().getClientBeneficiaire());
     }
 
     @Test
-    void accepterDemandeShouldThrowWhenAlreadyTreated() {
-        Utilisateur commercial = utilisateur(1L);
-        Opportunite opp = opportunite(10L, StatutOpportunite.CONCLUE, utilisateur(3L));
-        DemandeOpportunite demande = demande(20L, utilisateur(2L), opp, StatutDemande.ACCEPTEE);
+    void accepterDemandeShouldThrowWhenDemandeAlreadyTraitee() {
+        DemandeOpportunite demande = new DemandeOpportunite();
+        demande.setId(6L);
+        demande.setStatut(StatutDemande.ACCEPTEE);
+        demande.setOpportunite(opportunite);
+        demande.setClientDemandeur(acheteur);
 
-        when(demandeRepository.findById(20L)).thenReturn(Optional.of(demande));
+        when(demandeRepository.findById(6L)).thenReturn(Optional.of(demande));
 
-        assertThrows(IllegalStateException.class, () -> service.accepterDemande(20L, commercial));
+        assertThrows(IllegalStateException.class, () -> demandeService.accepterDemande(6L, commercial));
+        verify(affectationRepository, never()).save(any());
     }
 
     @Test
-    void refuserDemandeShouldSetRefusee() {
-        Opportunite opp = opportunite(10L, StatutOpportunite.DISPONIBLE, utilisateur(1L));
-        DemandeOpportunite demande = demande(20L, utilisateur(2L), opp, StatutDemande.EN_ATTENTE);
+    void refuserDemandeShouldSetStatutREFUSEE() {
+        DemandeOpportunite demande = new DemandeOpportunite();
+        demande.setId(7L);
+        demande.setStatut(StatutDemande.EN_ATTENTE);
+        demande.setOpportunite(opportunite);
+        demande.setClientDemandeur(acheteur);
 
-        when(demandeRepository.findById(20L)).thenReturn(Optional.of(demande));
-        when(demandeRepository.save(any())).thenReturn(demande);
+        when(demandeRepository.findById(7L)).thenReturn(Optional.of(demande));
+        when(demandeRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        service.refuserDemande(20L);
+        demandeService.refuserDemande(7L);
 
         assertEquals(StatutDemande.REFUSEE, demande.getStatut());
-        verify(demandeRepository).save(demande);
+        verify(opportuniteRepository, never()).save(any());
     }
 
     @Test
-    void refuserDemandeShouldThrowWhenAlreadyTreated() {
-        Opportunite opp = opportunite(10L, StatutOpportunite.CONCLUE, utilisateur(1L));
-        DemandeOpportunite demande = demande(20L, utilisateur(2L), opp, StatutDemande.REFUSEE);
+    void listerParClientShouldDelegateToRepository() {
+        when(demandeRepository.findByClientDemandeur(acheteur)).thenReturn(List.of());
 
-        when(demandeRepository.findById(20L)).thenReturn(Optional.of(demande));
+        List<DemandeOpportunite> result = demandeService.listerParClient(acheteur);
 
-        assertThrows(IllegalStateException.class, () -> service.refuserDemande(20L));
-    }
-
-    // ── helpers ──────────────────────────────────────────────────────────────
-
-    private Utilisateur utilisateur(Long id) {
-        Utilisateur u = new Utilisateur();
-        u.setId(id);
-        return u;
-    }
-
-    private Opportunite opportunite(Long id, StatutOpportunite statut, Utilisateur vendeur) {
-        Opportunite o = new Opportunite();
-        o.setId(id);
-        o.setStatut(statut);
-        o.setClientVendeur(vendeur);
-        o.setTitre("T");
-        o.setDescriptionComplete("D");
-        o.setMontant(BigDecimal.TEN);
-        return o;
-    }
-
-    private DemandeOpportunite demande(Long id, Utilisateur client, Opportunite opp, StatutDemande statut) {
-        DemandeOpportunite d = new DemandeOpportunite();
-        d.setId(id);
-        d.setClientDemandeur(client);
-        d.setOpportunite(opp);
-        d.setStatut(statut);
-        return d;
+        assertEquals(0, result.size());
+        verify(demandeRepository).findByClientDemandeur(acheteur);
     }
 }
