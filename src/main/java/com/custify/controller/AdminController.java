@@ -37,9 +37,19 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public String lister(Model model) {
-        model.addAttribute("utilisateurs", utilisateurService.listerTous());
+    public String listerInternes(Model model) {
+        java.util.List<UtilisateurResponse> tous = utilisateurService.listerTous();
+        java.util.List<UtilisateurResponse> internes = tous.stream().filter(u -> u.getRole() == Role.COMMERCIAL || u.getRole() == Role.ADMIN).toList();
+        model.addAttribute("utilisateurs", internes);
         return "users/list";
+    }
+
+    @GetMapping("/clients")
+    public String listerClients(Model model) {
+        java.util.List<UtilisateurResponse> tous = utilisateurService.listerTous();
+        java.util.List<UtilisateurResponse> clients = tous.stream().filter(u -> u.getRole() == Role.CLIENT).toList();
+        model.addAttribute("clients", clients);
+        return "users/clients";
     }
 
     @GetMapping("/users/nouveau")

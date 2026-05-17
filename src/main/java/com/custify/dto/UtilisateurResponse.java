@@ -11,12 +11,14 @@ public class UtilisateurResponse {
     private final String nom;
     private final String email;
     private final Role role;
+    private final String entreprise;
 
-    public UtilisateurResponse(Long id, String nom, String email, Role role) {
+    public UtilisateurResponse(Long id, String nom, String email, Role role, String entreprise) {
         this.id = id;
         this.nom = nom;
         this.email = email;
         this.role = role;
+        this.entreprise = entreprise;
     }
 
     public static UtilisateurResponse from(Utilisateur utilisateur) {
@@ -24,6 +26,7 @@ public class UtilisateurResponse {
                 utilisateur.getId(),
                 utilisateur.getNom(),
                 utilisateur.getEmail(),
-                utilisateur.getRole());
+                utilisateur.getRole(),
+                utilisateur.getEntreprise());
     }
 }

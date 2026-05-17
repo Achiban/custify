@@ -4,6 +4,7 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier Client - Custify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         body { background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 60px 20px; }
         .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 36px; max-width: 600px; width: 100%; }
@@ -19,7 +20,7 @@
 </head>
 <body>
 <div class="card">
-    <h1>Modifier le Client</h1>
+    <h1><i class="bi bi-pencil-square"></i> Modifier le Client</h1>
     
     <div th:if="${error}" class="alert-danger" th:text="${error}"></div>
     
@@ -54,7 +55,7 @@
         <button type="submit" class="btn-submit">Enregistrer les modifications</button>
     </form>
     
-    <a class="back" href="/commercial/dashboard">← Retour au dashboard</a>
+    <a class="back" href="/commercial/dashboard"><i class="bi bi-arrow-left"></i> Retour au dashboard</a>
 </div>
 </body>
 </html>

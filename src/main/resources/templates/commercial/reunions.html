@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réunions - Custify Commercial</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        *, body { font-family: 'Inter', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0f1e; color: #e2e8f0; }
+        .sidebar { background: rgba(15,23,42,0.95); backdrop-filter: blur(20px); width: 260px; min-height: 100vh; position: fixed; top: 0; left: 0; padding: 32px 0; border-right: 1px solid rgba(255,255,255,0.06); z-index: 100; display: flex; flex-direction: column; }
+        .sidebar-logo { padding: 0 28px 36px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px; }
+        .sidebar-logo .brand { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #ea580c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-logo .role { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .sidebar-nav { flex: 1; padding: 0 16px; }
+        .nav-label { font-size: 0.7rem; color: #475569; text-transform: uppercase; letter-spacing: 1.5px; padding: 0 12px; margin-bottom: 8px; margin-top: 16px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-radius: 12px; color: #94a3b8; text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s; margin-bottom: 4px; }
+        .nav-item:hover { background: rgba(245,158,11,0.1); color: #f59e0b; transform: translateX(4px); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(234,88,12,0.1)); color: #f59e0b; box-shadow: inset 3px 0 0 #f59e0b; }
+        .nav-item .icon { font-size: 1.1rem; }
+        .sidebar-footer { padding: 24px 16px 0; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 16px; }
+        .logout-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 16px; border-radius: 12px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.15); color: #f87171; font-weight: 600; cursor: pointer; transition: all 0.25s; text-align: left; }
+        .logout-btn:hover { background: #ef4444; color: #fff; }
+        .main { margin-left: 260px; padding: 50px; }
+        .page-header { margin-bottom: 40px; }
+        .page-header h1 { font-size: 2rem; font-weight: 800; color: #f8fafc; }
+        .page-header p { color: #64748b; margin-top: 8px; }
+        .alert { border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; font-weight: 500; }
+        .alert-success { background: rgba(16,185,129,0.15); color: #34d399; box-shadow: inset 0 0 0 1px rgba(16,185,129,0.3); }
+        .alert-danger { background: rgba(239,68,68,0.15); color: #f87171; box-shadow: inset 0 0 0 1px rgba(239,68,68,0.3); }
+
+        /* Search toolbar */
+        .search-toolbar { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; align-items: center; background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 20px 24px; }
+        .search-box { position: relative; flex: 1; min-width: 240px; }
+        .search-box input { width: 100%; background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.1); color: #f8fafc; border-radius: 12px; padding: 12px 18px 12px 44px; font-size: 0.95rem; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        .search-box input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,0.12); }
+        .search-box input::placeholder { color: #475569; }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #475569; pointer-events: none; }
+        .result-count { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); color: #a78bfa; padding: 10px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
+
+        /* Cards */
+        .reunions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 24px; }
+        .reunion-card { background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 28px; transition: all 0.3s; position: relative; overflow: hidden; }
+        .reunion-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #8b5cf6, #6366f1); }
+        .reunion-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); border-color: rgba(139,92,246,0.3); }
+        .reunion-card.hidden { display: none; }
+        .reunion-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .reunion-sujet { font-size: 1.1rem; font-weight: 700; color: #f8fafc; }
+        .reunion-opp { font-size: 0.82rem; color: #818cf8; margin-top: 4px; font-weight: 600; }
+        .reunion-date-badge { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fff; padding: 8px 14px; border-radius: 12px; font-size: 0.82rem; font-weight: 700; text-align: center; white-space: nowrap; }
+        .participants { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .participant { background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 14px; }
+        .participant .p-role { font-size: 0.68rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .participant .p-name { font-size: 0.88rem; color: #f8fafc; font-weight: 600; }
+        .vs-badge { background: rgba(255,255,255,0.06); border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; color: #64748b; font-weight: 600; }
+        .reunion-lieu { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.15); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+        .reunion-lieu .lieu-text { font-size: 0.9rem; color: #fbbf24; font-weight: 600; }
+        .reunion-description { font-size: 0.85rem; color: #64748b; margin-top: 14px; font-style: italic; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px; }
+        .empty-state { text-align: center; padding: 80px 40px; background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; }
+        .empty-icon { font-size: 4rem; margin-bottom: 20px; color: #64748b; }
+        .empty-state h3 { font-size: 1.4rem; font-weight: 700; color: #f8fafc; margin-bottom: 10px; }
+        .empty-state p { color: #64748b; margin-bottom: 28px; }
+        .btn-go { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; border-radius: 14px; background: linear-gradient(135deg, #f59e0b, #ea580c); color: #fff; text-decoration: none; font-weight: 700; transition: all 0.3s; }
+        .btn-go:hover { box-shadow: 0 8px 20px rgba(234,88,12,0.4); transform: translateY(-2px); color: #fff; }
+        .no-results-state { text-align: center; padding: 40px; color: #475569; display: none; }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-logo">
+        <div class="brand">Custify</div>
+        <div class="role">Espace Commercial</div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-label">Navigation</div>
+        <a href="/commercial/dashboard" class="nav-item"><i class="icon bi bi-grid-1x2-fill"></i> Tableau de bord</a>
+        <a href="/commercial/demandes" class="nav-item"><i class="icon bi bi-inbox-fill"></i> Demandes clients</a>
+        <a href="/commercial/opportunites" class="nav-item"><i class="icon bi bi-briefcase-fill"></i> Opportunités</a>
+        <a href="/commercial/affectations" class="nav-item"><i class="icon bi bi-arrow-left-right"></i> Affectations</a>
+        <a href="/commercial/clients" class="nav-item"><i class="icon bi bi-people-fill"></i> Clients</a>
+        <a href="/commercial/reunions" class="nav-item active"><i class="icon bi bi-calendar-event-fill"></i> Réunions</a>
+        <div class="nav-label">Autres</div>
+        <a href="/" class="nav-item"><i class="icon bi bi-globe"></i> Catalogue public</a>
+    </nav>
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn"><i class="bi bi-box-arrow-left"></i> Déconnexion</button>
+        </form>
+    </div>
+</div>
+<div class="main">
+    <div class="page-header">
+        <h1><i class="bi bi-calendar-event-fill"></i> Réunions Planifiées</h1>
+        <p>Recherchez et consultez vos réunions de mise en relation.</p>
+    </div>
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+    <!-- Search -->
+    <div th:unless="${#lists.isEmpty(mesReunions)}" class="search-toolbar">
+        <div class="search-box">
+            <i class="search-icon bi bi-search"></i>
+            <input type="text" id="searchReunions" placeholder="Rechercher par sujet, lieu, participant, opportunité..." oninput="filterReunions()">
+        </div>
+        <span class="result-count" id="reunionCount">0 réunion</span>
+    </div>
+
+    <!-- Empty state -->
+    <div th:if="${#lists.isEmpty(mesReunions)}" class="empty-state">
+        <div class="empty-icon"><i class="bi bi-calendar-x"></i></div>
+        <h3>Aucune réunion planifiée</h3>
+        <p>Acceptez des affectations et planifiez vos premières réunions !</p>
+        <a href="/commercial/affectations" class="btn-go"><i class="bi bi-arrow-left-right"></i> Voir les affectations</a>
+    </div>
+
+    <div class="no-results-state" id="noResults"><i class="bi bi-exclamation-circle-fill"></i> Aucune réunion ne correspond à cette recherche.</div>
+
+    <div th:unless="${#lists.isEmpty(mesReunions)}" class="reunions-grid" id="reunionsGrid">
+        <div th:each="r : ${mesReunions}" class="reunion-card"
+             th:attr="data-text=${r.sujet + ' ' + r.lieu + ' ' + r.opportunite.titre + ' ' + r.clientVendeur.nom + ' ' + r.clientAcheteur.nom}">
+            <div class="reunion-header">
+                <div>
+                    <div class="reunion-sujet" th:text="${r.sujet}"></div>
+                    <div class="reunion-opp" th:text="'💼 ' + ${r.opportunite.titre}"></div>
+                </div>
+                <div class="reunion-date-badge">
+                    <div th:text="${#temporals.format(r.dateReunion, 'dd/MM')}"></div>
+                    <div th:text="${#temporals.format(r.dateReunion, 'HH:mm')}"></div>
+                </div>
+            </div>
+            <div class="participants">
+                <div class="participant">
+                    <div class="p-role"><i class="bi bi-tag-fill"></i> Vendeur</div>
+                    <div class="p-name" th:text="${r.clientVendeur.nom + ' ' + (r.clientVendeur.prenom != null ? r.clientVendeur.prenom : '')}"></div>
+                </div>
+                <span class="vs-badge"><i class="bi bi-arrow-left-right"></i></span>
+                <div class="participant">
+                    <div class="p-role"><i class="bi bi-cart-fill"></i> Acheteur</div>
+                    <div class="p-name" th:text="${r.clientAcheteur.nom + ' ' + (r.clientAcheteur.prenom != null ? r.clientAcheteur.prenom : '')}"></div>
+                </div>
+            </div>
+            <div class="reunion-lieu">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span class="lieu-text" th:text="${r.lieu != null ? r.lieu : 'Lieu non spécifié'}"></span>
+            </div>
+            <div th:if="${r.description != null && !r.description.isEmpty()}" class="reunion-description" th:text="${r.description}"></div>
+        </div>
+    </div>
+</div>
+<script>
+function filterReunions() {
+    const q = document.getElementById('searchReunions').value.toLowerCase();
+    const cards = document.querySelectorAll('#reunionsGrid .reunion-card');
+    let count = 0;
+    cards.forEach(card => {
+        const text = (card.dataset.text || card.textContent).toLowerCase();
+        const show = text.includes(q);
+        card.classList.toggle('hidden', !show);
+        if (show) count++;
+    });
+    document.getElementById('reunionCount').textContent = count + ' réunion' + (count > 1 ? 's' : '');
+    document.getElementById('noResults').style.display = (count === 0 && q.length > 0) ? 'block' : 'none';
+}
+window.onload = () => {
+    const cards = document.querySelectorAll('#reunionsGrid .reunion-card');
+    const el = document.getElementById('reunionCount');
+    if (el) el.textContent = cards.length + ' réunion' + (cards.length > 1 ? 's' : '');
+};
+</script>
+</body>
+</html>

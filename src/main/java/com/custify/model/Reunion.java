@@ -40,10 +40,10 @@ public class Reunion {
     @JoinColumn(name = "id_opp", nullable = false)
     private Opportunite opportunite;
 
-    @Column(name = "date_heure", nullable = false)
+    @Column(name = "date_reunion", nullable = false)
     private LocalDateTime dateReunion;
 
-    @Column(name = "titre", nullable = false, length = 200)
+    @Column(name = "sujet", nullable = false, length = 200)
     private String sujet;
 
     @Column(name = "description", columnDefinition = "TEXT")

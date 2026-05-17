@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Utilisateurs - Custify</title>
+    <title>Clients - Custify ADMIN</title>
     <style>
         body {
             background-color: #1e2a3a;
@@ -11,6 +12,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
         }
+
         .sidebar {
             background-color: #16212e;
             min-height: 100vh;
@@ -18,6 +20,7 @@
             position: fixed;
             width: 200px;
         }
+
         .sidebar-brand {
             color: #4fc3f7;
             font-weight: bold;
@@ -25,23 +28,28 @@
             margin-bottom: 30px;
             font-size: 1.2rem;
         }
+
         .sidebar-nav {
             list-style: none;
             padding: 0;
             margin: 0;
         }
+
         .sidebar-nav li {
             padding: 12px 20px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
+
         .sidebar-nav li:hover {
             background-color: #1e2a3a;
         }
+
         .sidebar-nav li a {
             color: #b0bec5;
             text-decoration: none;
         }
+
         .logout-btn {
             background-color: #e74c3c;
             border: none;
@@ -53,90 +61,72 @@
             left: 20px;
             cursor: pointer;
         }
+
         .main-content {
             margin-left: 200px;
             padding: 30px;
         }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
         }
+
         .header h1 {
-            color: #4fc3f7;
+            color: #2ecc71;
             font-size: 1.8rem;
             margin: 0;
         }
-        .btn-primary {
-            background-color: #4fc3f7;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s;
-        }
-        .btn-primary:hover {
-            background-color: #3ab0e0;
-        }
+
         .alert {
             padding: 12px 20px;
             border-radius: 5px;
             margin-bottom: 20px;
         }
+
         .alert-success {
             background-color: rgba(46, 204, 113, 0.2);
             border: 1px solid #2ecc71;
             color: #2ecc71;
         }
+
         .table-container {
             background-color: #263645;
             border-radius: 8px;
             overflow: hidden;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
+
         th {
             background-color: #1e2a3a;
-            color: #4fc3f7;
+            color: #2ecc71;
             padding: 15px;
             text-align: left;
             font-weight: 600;
         }
+
         td {
             padding: 15px;
             border-top: 1px solid #3a4a5c;
             color: #b0bec5;
         }
+
         tr:hover {
-            background-color: rgba(79, 195, 247, 0.05);
+            background-color: rgba(46, 204, 113, 0.05);
         }
+
         .empty-state {
             text-align: center;
             padding: 40px;
             color: #b0bec5;
         }
-        .btn-edit {
-            background-color: #f39c12;
-            color: #fff;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: background-color 0.3s;
-            display: inline-block;
-            margin-right: 5px;
-        }
-        .btn-edit:hover {
-            background-color: #e67e22;
-        }
+
         .btn-delete {
             background-color: #e74c3c;
             color: #fff;
@@ -148,11 +138,13 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
+
         .btn-delete:hover {
             background-color: #c0392b;
         }
     </style>
 </head>
+
 <body>
     <div class="sidebar">
         <div class="sidebar-brand">Custify ADMIN</div>
@@ -168,8 +160,7 @@
 
     <div class="main-content">
         <div class="header">
-            <h1>Équipe Interne</h1>
-            <a href="/admin/users/nouveau" class="btn-primary">Créer un membre</a>
+            <h1>Clients </h1>
         </div>
 
         <div th:if="${message}" class="alert alert-success">
@@ -183,31 +174,31 @@
                         <th>ID</th>
                         <th>Nom</th>
                         <th>Email</th>
-                        <th>Rôle</th>
+                        <th>Entreprise</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="utilisateur : ${utilisateurs}">
+                    <tr th:each="utilisateur : ${clients}">
                         <td th:text="${utilisateur.id}">1</td>
-                        <td th:text="${utilisateur.nom}">John Doe</td>
-                        <td th:text="${utilisateur.email}">john@example.com</td>
-                        <td><span th:text="${utilisateur.role}" th:style="${utilisateur.role.name() == 'ADMIN' ? 'background-color: #e74c3c; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;' : 'background-color: #34495e; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;'}">ADMIN</span></td>
+                        <td th:text="${utilisateur.nom}">Jane Doe</td>
+                        <td th:text="${utilisateur.email}">jane@example.com</td>
+                        <td th:text="${utilisateur.entreprise}">Entreprise</td>
                         <td>
-                            <a th:href="@{/admin/users/{id}/modifier-role(id=${utilisateur.id})}" class="btn-edit">
-                                Modifier rôle
-                            </a>
-                            <form th:action="@{/admin/users/{id}/supprimer(id=${utilisateur.id})}" method="post" style="display: inline; margin: 0;" onsubmit="return confirm('Supprimer ce membre de l\'équipe ?');">
+                            <form th:action="@{/admin/users/{id}/supprimer(id=${utilisateur.id})}" method="post"
+                                style="display: inline; margin: 0;"
+                                onsubmit="return confirm('Supprimer ce client ? Toutes ses opportunités et demandes seront supprimées.');">
                                 <button type="submit" class="btn-delete">Supprimer</button>
                             </form>
                         </td>
                     </tr>
-                    <tr th:if="${#lists.isEmpty(utilisateurs)}">
-                        <td colspan="5" class="empty-state">Aucun utilisateur interne trouvé</td>
+                    <tr th:if="${#lists.isEmpty(clients)}">
+                        <td colspan="5" class="empty-state">Aucun client trouvé</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </body>
+
 </html>

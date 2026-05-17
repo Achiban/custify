@@ -43,19 +43,89 @@ public class CommercialController {
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
     }
 
-    // ── Dashboard ─────────────────────────────────────────────────────────────
+    // ── Dashboard (Vue d'ensemble) ─────────────────────────────────────────────
     @GetMapping("/dashboard")
     public String dashboard(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         Utilisateur commercial = getCommercial(userDetails);
         model.addAttribute("commercial", commercial);
-        model.addAttribute("opportunitesDisponibles", opportuniteService.listerDisponibles());
-        model.addAttribute("demandesEnAttente", demandeService.listerEnAttente());
-        model.addAttribute("clients", utilisateurRepository.findByRole(Role.CLIENT));
-        model.addAttribute("mesAffectations", affectationService.listerParCommercial(commercial));
-        model.addAttribute("mesReunions", reunionService.listerParCommercial(commercial));
-        model.addAttribute("affectationRequest", new CreerAffectationRequest());
+        model.addAttribute("totalClients", utilisateurRepository.findByRole(Role.CLIENT).size());
+        model.addAttribute("totalDemandes", demandeService.listerEnAttente().size());
+        model.addAttribute("totalAffectations", affectationService.listerParCommercial(commercial).size());
+        model.addAttribute("totalReunions", reunionService.listerParCommercial(commercial).size());
         return "commercial/dashboard";
     }
+
+    // ── Page Demandes ──────────────────────────────────────────────────────────
+    @GetMapping("/demandes")
+    public String demandes(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        Utilisateur commercial = getCommercial(userDetails);
+        model.addAttribute("commercial", commercial);
+        model.addAttribute("demandesEnAttente", demandeService.listerEnAttente());
+        model.addAttribute("opportunitesDisponibles", opportuniteService.listerDisponibles());
+        model.addAttribute("clients", utilisateurRepository.findByRole(Role.CLIENT));
+        model.addAttribute("affectationRequest", new CreerAffectationRequest());
+        return "commercial/demandes";
+    }
+
+    @PostMapping("/demandes/{id}/accepter")
+    public String accepterDemande(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails, RedirectAttributes redirectAttributes) {
+        try {
+            Utilisateur commercial = getCommercial(userDetails);
+            demandeService.accepterDemande(id, commercial);
+            redirectAttributes.addFlashAttribute("message", "Demande acceptée ! Une affectation a été créée pour discuter avec le client.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/commercial/demandes";
+    }
+
+    @PostMapping("/demandes/{id}/refuser")
+    public String refuserDemande(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            demandeService.refuserDemande(id);
+            redirectAttributes.addFlashAttribute("message", "Demande refusée.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/commercial/demandes";
+    }
+
+    // ── Page Opportunités ──────────────────────────────────────────────────────
+    @GetMapping("/opportunites")
+    public String opportunites(Model model) {
+        model.addAttribute("opportunitesDisponibles", opportuniteService.listerDisponibles());
+        return "commercial/opportunites";
+    }
+
+    // ── Page Clients ───────────────────────────────────────────────────────────
+    @GetMapping("/clients")
+    public String clients(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        model.addAttribute("commercial", getCommercial(userDetails));
+        model.addAttribute("clients", utilisateurRepository.findByRole(Role.CLIENT));
+        return "commercial/clients";
+    }
+
+    // ── Page Affectations ──────────────────────────────────────────────────────
+    @GetMapping("/affectations")
+    public String affectations(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        Utilisateur commercial = getCommercial(userDetails);
+        model.addAttribute("commercial", commercial);
+        model.addAttribute("mesAffectations", affectationService.listerParCommercial(commercial));
+        model.addAttribute("opportunitesDisponibles", opportuniteService.listerDisponibles());
+        model.addAttribute("clients", utilisateurRepository.findByRole(Role.CLIENT));
+        model.addAttribute("affectationRequest", new CreerAffectationRequest());
+        return "commercial/affectations";
+    }
+
+    // ── Page Réunions ──────────────────────────────────────────────────────────
+    @GetMapping("/reunions")
+    public String reunions(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        Utilisateur commercial = getCommercial(userDetails);
+        model.addAttribute("commercial", commercial);
+        model.addAttribute("mesReunions", reunionService.listerParCommercial(commercial));
+        return "commercial/reunions";
+    }
+
 
     // ── Affectations ──────────────────────────────────────────────────────────
     @PostMapping("/affectations")
@@ -68,11 +138,9 @@ public class CommercialController {
             Utilisateur commercial = getCommercial(userDetails);
             model.addAttribute("commercial", commercial);
             model.addAttribute("opportunitesDisponibles", opportuniteService.listerDisponibles());
-            model.addAttribute("demandesEnAttente", demandeService.listerEnAttente());
             model.addAttribute("clients", utilisateurRepository.findByRole(Role.CLIENT));
             model.addAttribute("mesAffectations", affectationService.listerParCommercial(commercial));
-            model.addAttribute("mesReunions", reunionService.listerParCommercial(commercial));
-            return "commercial/dashboard";
+            return "commercial/affectations";
         }
         try {
             Utilisateur commercial = getCommercial(userDetails);
@@ -81,7 +149,7 @@ public class CommercialController {
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/commercial/dashboard";
+        return "redirect:/commercial/affectations";
     }
 
     // ── Réunions ──────────────────────────────────────────────────────────────
@@ -119,7 +187,7 @@ public class CommercialController {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Une erreur est survenue lors de la planification de la réunion : " + e.getMessage());
         }
-        return "redirect:/commercial/dashboard";
+        return "redirect:/commercial/reunions";
     }
 
     // ── Gestion des Clients (Consultation / Modification / Suppression) ────────
@@ -158,7 +226,7 @@ public class CommercialController {
         utilisateurRepository.save(client);
 
         redirectAttributes.addFlashAttribute("message", "Le client a été modifié avec succès !");
-        return "redirect:/commercial/dashboard";
+        return "redirect:/commercial/clients";
     }
 
     @PostMapping("/clients/{id}/supprimer")
@@ -167,6 +235,6 @@ public class CommercialController {
                 .orElseThrow(() -> new RuntimeException("Client non trouvé: " + id));
         utilisateurRepository.delete(client);
         redirectAttributes.addFlashAttribute("message", "Le client a été supprimé avec succès !");
-        return "redirect:/commercial/dashboard";
+        return "redirect:/commercial/clients";
     }
 }

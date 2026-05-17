@@ -25,7 +25,8 @@
     <div class="sidebar-brand">Custify ADMIN</div>
     <ul class="sidebar-nav">
         <li><a href="/admin/dashboard" class="active">Dashboard</a></li>
-        <li><a href="/admin/users">Utilisateurs</a></li>
+        <li><a href="/admin/users">Équipe Interne</a></li>
+        <li><a href="/admin/clients">Clients</a></li>
         <li><a href="/">Catalogue public</a></li>
     </ul>
     <form th:action="@{/logout}" method="post"><button type="submit" class="logout-btn">Déconnexion</button></form>
@@ -37,7 +38,10 @@
         <div class="stat-card"><h3>Clients</h3><div class="val" th:text="${totalClients}">0</div></div>
         <div class="stat-card"><h3>Commerciaux</h3><div class="val" th:text="${totalCommerciaux}">0</div></div>
     </div>
-    <a href="/admin/users" class="btn btn-outline-light">Gérer les utilisateurs →</a>
+    <div style="display: flex; gap: 15px;">
+        <a href="/admin/users" class="btn btn-outline-light" style="background-color: #34495e; border-color: #34495e;">Gérer l'équipe interne →</a>
+        <a href="/admin/clients" class="btn btn-outline-light" style="background-color: #27ae60; border-color: #27ae60;">Gérer les clients →</a>
+    </div>
 </div>
 </body>
 </html>
