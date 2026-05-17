@@ -29,7 +29,7 @@
 <body>
 <div class="card-box">
     <h1 th:text="${opportuniteId != null ? 'Modifier l''opportunité' : 'Publier une opportunité'}">Formulaire</h1>
-    <form method="post" th:action="${opportuniteId != null ? '/client/opportunites/' + opportuniteId + '/modifier' : '/client/opportunites'}" th:object="${opportuniteRequest}">
+    <form method="post" th:action="${opportuniteId != null} ? @{/client/opportunites/{id}/modifier(id=${opportuniteId})} : @{/client/opportunites}" th:object="${opportuniteRequest}">
         <div class="mb-3">
             <label class="form-label">Titre *</label>
             <input type="text" class="form-control" th:field="*{titre}" required placeholder="Ex: Développement d'une application mobile">

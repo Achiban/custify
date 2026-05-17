@@ -10,6 +10,7 @@ import com.custify.repository.UtilisateurRepository;
 import com.custify.service.AffectationService;
 import com.custify.service.DemandeService;
 import com.custify.service.OpportuniteMarketplaceService;
+import com.custify.service.ReunionService;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -30,13 +31,13 @@ public class CommercialController {
     private final DemandeService demandeService;
     private final AffectationService affectationService;
     private final UtilisateurRepository utilisateurRepository;
-    private final com.custify.service.ReunionService reunionService;
+    private final ReunionService reunionService;
 
     public CommercialController(OpportuniteMarketplaceService opportuniteService,
                                 DemandeService demandeService,
                                 AffectationService affectationService,
                                 UtilisateurRepository utilisateurRepository,
-                                com.custify.service.ReunionService reunionService) {
+                                ReunionService reunionService) {
         this.opportuniteService = opportuniteService;
         this.demandeService = demandeService;
         this.affectationService = affectationService;

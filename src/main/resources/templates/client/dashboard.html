@@ -265,7 +265,7 @@
                     <td style="font-weight:600; color:#f8fafc;" th:text="${r.sujet}"></td>
                     <td th:text="${r.opportunite.titre}"></td>
                     <td th:text="${#temporals.format(r.dateReunion, 'dd/MM/yyyy HH:mm')}"></td>
-                    <td th:text="${r.lieu}"></td>
+                    <td th:text="${r.lieu != null ? r.lieu : '—'}"></td>
                     <td th:text="${r.commercial.nom}"></td>
                     <td>
                         <span th:if="${r.clientVendeur.id == client.id}" class="badge bg-info text-dark">Vendeur</span>
