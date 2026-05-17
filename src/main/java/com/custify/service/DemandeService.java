@@ -79,8 +79,9 @@ public class DemandeService {
         demande.setStatut(StatutDemande.ACCEPTEE);
         demandeRepository.save(demande);
 
+        // L'opportunité passe ATTRIBUEE — elle deviendra CONCLUE quand le client acceptera l'affectation
         Opportunite opp = demande.getOpportunite();
-        opp.setStatut(StatutOpportunite.CONCLUE);
+        opp.setStatut(StatutOpportunite.ATTRIBUEE);
         opportuniteRepository.save(opp);
 
         Affectation affectation = new Affectation();
@@ -88,7 +89,7 @@ public class DemandeService {
         affectation.setClientBeneficiaire(demande.getClientDemandeur());
         affectation.setOpportunite(opp);
         affectation.setMessageCommercial("J'ai accepté votre demande. Discutons des détails ici !");
-        affectation.setStatutClient(StatutAffectation.ACCEPTEE);
+        affectation.setStatutClient(StatutAffectation.EN_ATTENTE);
         affectationRepository.save(affectation);
     }
 
