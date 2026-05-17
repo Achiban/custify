@@ -134,6 +134,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- H2 in-memory database for system/integration tests -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- WAS: spring-boot-starter-security-test (fake) -->
         <dependency>
             <groupId>org.springframework.security</groupId>
