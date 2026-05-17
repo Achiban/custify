@@ -4,39 +4,49 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Opportunité - Custify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        body { background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 60px 20px; }
-        .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 36px; max-width: 600px; width: 100%; }
-        h1 { color: #818cf8; font-size: 1.5rem; margin-bottom: 20px; }
-        .form-label { color: #94a3b8; }
-        .form-control, .form-select { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; border-radius: 8px; }
-        .form-control:focus { border-color: #6366f1; background: #0f172a; color: #e2e8f0; box-shadow: 0 0 0 2px rgba(99,102,241,0.2); }
-        .btn-submit { width: 100%; padding: 12px; background: linear-gradient(135deg,#6366f1,#4f46e5); border: none; border-radius: 10px; color: #fff; font-weight: 600; }
-        .btn-submit:hover { box-shadow: 0 6px 20px rgba(99,102,241,0.4); color: #fff; }
-        a.back { color: #818cf8; text-decoration: none; display: block; text-align: center; margin-top: 16px; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        *, body { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+        body { background: #0a0f1e; color: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 60px 20px; }
+        
+        .card-box { background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 40px; max-width: 600px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+        h1 { color: #818cf8; font-size: 1.6rem; font-weight: 800; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+        
+        .form-label { color: #94a3b8; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
+        .form-control, .form-select { background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); color: #f8fafc; border-radius: 12px; padding: 12px 16px; transition: all 0.2s; }
+        .form-control:focus, .form-select:focus { border-color: #818cf8; box-shadow: 0 0 0 4px rgba(129,140,248,0.15); background: rgba(15,23,42,0.9); color: #fff; }
+        
+        .btn-submit { width: 100%; padding: 14px; background: linear-gradient(135deg, #818cf8, #6366f1); border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s; margin-top: 10px; }
+        .btn-submit:hover { box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); transform: translateY(-1px); color: #fff; }
+        
+        a.back { color: #818cf8; text-decoration: none; display: block; text-align: center; margin-top: 20px; font-weight: 600; transition: color 0.2s; }
+        a.back:hover { color: #6366f1; text-decoration: underline; }
+        
+        .text-danger { font-size: 0.85rem; font-weight: 500; margin-top: 6px; }
     </style>
 </head>
 <body>
-<div class="card">
+<div class="card-box">
     <h1 th:text="${opportuniteId != null ? 'Modifier l''opportunité' : 'Publier une opportunité'}">Formulaire</h1>
     <form method="post" th:action="${opportuniteId != null ? '/client/opportunites/' + opportuniteId + '/modifier' : '/client/opportunites'}" th:object="${opportuniteRequest}">
         <div class="mb-3">
             <label class="form-label">Titre *</label>
-            <input type="text" class="form-control" th:field="*{titre}" required>
+            <input type="text" class="form-control" th:field="*{titre}" required placeholder="Ex: Développement d'une application mobile">
             <small class="text-danger" th:if="${#fields.hasErrors('titre')}" th:errors="*{titre}"></small>
         </div>
         <div class="mb-3">
             <label class="form-label">Description complète *</label>
-            <textarea class="form-control" rows="4" th:field="*{descriptionComplete}" required></textarea>
+            <textarea class="form-control" rows="4" th:field="*{descriptionComplete}" required placeholder="Détaillez le besoin, les compétences requises, etc."></textarea>
         </div>
         <div class="mb-3">
             <label class="form-label">Montant (€) *</label>
-            <input type="number" step="0.01" class="form-control" th:field="*{montant}" required>
+            <input type="number" step="0.01" class="form-control" th:field="*{montant}" required placeholder="Ex: 5000">
         </div>
         <div class="mb-3">
             <label class="form-label">Catégorie</label>
             <select class="form-select" th:field="*{categorie}">
-                <option value="">-- Choisir --</option>
+                <option value="">-- Choisir une catégorie --</option>
                 <option value="Informatique">Informatique</option>
                 <option value="BTP">BTP</option>
                 <option value="Marketing">Marketing</option>
@@ -45,9 +55,9 @@
                 <option value="Autre">Autre</option>
             </select>
         </div>
-        <button type="submit" class="btn-submit" th:text="${opportuniteId != null ? 'Enregistrer les modifications' : 'Publier'}">Publier</button>
+        <button type="submit" class="btn-submit" th:text="${opportuniteId != null ? 'Enregistrer les modifications' : 'Publier l''opportunité'}">Publier</button>
     </form>
-    <a class="back" href="/client/dashboard">← Retour au dashboard</a>
+    <a class="back" href="/client/dashboard"><i class="bi bi-arrow-left"></i> Retour au dashboard</a>
 </div>
 </body>
 </html>

@@ -6,42 +6,50 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Dashboard Client - Custify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { background: #0f172a; color: #e2e8f0; font-family: 'Inter', sans-serif; }
-        .sidebar { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); width: 240px; min-height: 100vh; position: fixed; padding: 30px 0; border-right: 1px solid rgba(255,255,255,0.05); z-index: 10; }
-        .sidebar-brand { color: #818cf8; font-weight: 700; font-size: 1.4rem; padding: 0 24px; margin-bottom: 40px; letter-spacing: 0.5px; }
-        .sidebar-nav { list-style: none; padding: 0; }
-        .sidebar-nav li a { display: flex; align-items: center; padding: 14px 24px; color: #94a3b8; text-decoration: none; transition: all 0.3s ease; font-weight: 500; border-left: 3px solid transparent; }
-        .sidebar-nav li a:hover, .sidebar-nav li a.active { background: rgba(129, 140, 248, 0.1); color: #818cf8; border-left: 3px solid #818cf8; }
-        .main { margin-left: 240px; padding: 40px; max-width: 1400px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .header h1 { color: #f8fafc; font-size: 2rem; font-weight: 700; margin: 0; }
-        .header h1 span { color: #818cf8; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        *, body { font-family: 'Inter', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0f1e; color: #e2e8f0; }
         
-        .card-section { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s ease; }
-        .card-section:hover { transform: translateY(-2px); }
-        .card-section h2 { font-size: 1.25rem; font-weight: 600; color: #818cf8; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+        .sidebar { background: rgba(15,23,42,0.95); backdrop-filter: blur(20px); width: 260px; min-height: 100vh; position: fixed; top: 0; left: 0; padding: 32px 0; border-right: 1px solid rgba(255,255,255,0.06); z-index: 100; display: flex; flex-direction: column; }
+        .sidebar-logo { padding: 0 28px 36px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px; }
+        .sidebar-logo .brand { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #818cf8, #6366f1); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-logo .role { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .sidebar-nav { flex: 1; padding: 0 16px; }
+        .nav-label { font-size: 0.7rem; color: #475569; text-transform: uppercase; letter-spacing: 1.5px; padding: 0 12px; margin-bottom: 8px; margin-top: 16px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-radius: 12px; color: #94a3b8; text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s; margin-bottom: 4px; }
+        .nav-item:hover { background: rgba(99, 102, 241, 0.1); color: #818cf8; transform: translateX(4px); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(79, 70, 229, 0.1)); color: #818cf8; box-shadow: inset 3px 0 0 #818cf8; }
+        .nav-item .icon { font-size: 1.1rem; }
+        .sidebar-footer { padding: 24px 16px 0; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 16px; }
+        .logout-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 16px; border-radius: 12px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.15); color: #f87171; font-weight: 600; cursor: pointer; transition: all 0.25s; text-align: left; }
+        .logout-btn:hover { background: #ef4444; color: #fff; }
+        
+        .main { margin-left: 260px; padding: 50px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .page-header h1 { font-size: 2rem; font-weight: 800; color: #f8fafc; margin: 0; }
+        .page-header h1 span { color: #818cf8; }
+        
+        .card-section { background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 32px; margin-bottom: 32px; }
+        .card-section h2 { font-size: 1.25rem; font-weight: 700; color: #818cf8; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
         
         table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        table th { color: #94a3b8; font-weight: 600; padding: 14px 12px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        table td { padding: 16px 12px; font-size: 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: #cbd5e1; transition: background 0.2s; }
+        table th { color: #64748b; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        table td { padding: 18px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #cbd5e1; font-size: 0.95rem; vertical-align: middle; }
         tbody tr { transition: all 0.2s; }
         tbody tr:hover td { background: rgba(255,255,255,0.02); }
         
-        .badge-dispo, .badge-acceptee, .bg-success { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(16,185,129,0.3); }
-        .badge-attente, .badge-attrib { background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(245,158,11,0.3); }
-        .badge-refusee { background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(239,68,68,0.3); }
-        .badge-conclue, .bg-info { background: rgba(99, 102, 241, 0.2) !important; color: #818cf8 !important; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(99,102,241,0.3); }
+        .badge-dispo, .badge-acceptee, .bg-success { background: rgba(16, 185, 129, 0.15) !important; color: #34d399 !important; padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; border: 1px solid rgba(16,185,129,0.3); }
+        .badge-attente, .badge-attrib { background: rgba(245, 158, 11, 0.15); color: #fbbf24; padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; border: 1px solid rgba(245,158,11,0.3); }
+        .badge-refusee { background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; border: 1px solid rgba(239,68,68,0.3); }
+        .badge-conclue, .bg-info { background: rgba(99, 102, 241, 0.15) !important; color: #818cf8 !important; padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; border: 1px solid rgba(99,102,241,0.3); }
         
-        .btn-new { background: linear-gradient(135deg, #6366f1, #4f46e5); border: none; padding: 12px 24px; border-radius: 12px; color: #fff; font-weight: 600; font-size: 1rem; text-decoration: none; transition: all 0.3s; display: inline-block; }
+        .btn-new { background: linear-gradient(135deg, #818cf8, #6366f1); border: none; padding: 13px 28px; border-radius: 12px; color: #fff; font-weight: 700; font-size: 1rem; text-decoration: none; transition: all 0.3s; display: inline-flex; align-items: center; }
         .btn-new:hover { box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); transform: translateY(-2px); color: #fff; }
-        
-        .logout-btn { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239,68,68,0.2); color: #f87171; padding: 12px 20px; border-radius: 12px; position: fixed; bottom: 30px; left: 24px; width: 192px; font-weight: 600; transition: all 0.3s; }
-        .logout-btn:hover { background: #ef4444; color: #fff; box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
         
         .alert { border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; font-weight: 500; border: none; }
         .alert-success { background: rgba(16,185,129,0.15); color: #34d399; box-shadow: inset 0 0 0 1px rgba(16,185,129,0.3); }
@@ -52,13 +60,13 @@
         .btn-edit:hover { background: #f59e0b; color: #fff; }
         .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; }
         .btn-delete:hover { background: #ef4444; color: #fff; }
-        .btn-interest { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fff; }
+        .btn-interest { background: linear-gradient(135deg, #818cf8, #6366f1); color: #fff; }
         .btn-interest:hover { box-shadow: 0 4px 12px rgba(99,102,241,0.4); color: #fff; transform: translateY(-1px); }
         .btn-accept { background: rgba(16, 185, 129, 0.15); color: #34d399; }
         .btn-accept:hover { background: #10b981; color: #fff; }
         .btn-refuse { background: rgba(239, 68, 68, 0.15); color: #f87171; }
         .btn-refuse:hover { background: #ef4444; color: #fff; }
-        .btn-chat { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .btn-chat { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
         .btn-chat:hover { background: #3b82f6; color: #fff; }
         
         /* Chat styling */
@@ -71,162 +79,221 @@
         td a { color: #818cf8; font-weight: 600; text-decoration: none; transition: color 0.2s; }
         td a:hover { color: #6366f1; text-decoration: underline; }
     </style>
-
 </head>
 <body>
 <div class="sidebar">
-    <div class="sidebar-brand">Custify CLIENT</div>
-    <ul class="sidebar-nav">
-        <li><a href="/client/dashboard" class="active">Dashboard</a></li>
-        <li><a href="/client/opportunites/nouvelle">Publier une opportunité</a></li>
-        <li><a href="/">Catalogue public</a></li>
-    </ul>
-    <form th:action="@{/logout}" method="post"><button type="submit" class="logout-btn">Déconnexion</button></form>
-</div>
-<div class="main">
-    <div class="header">
-        <h1>Bienvenue, <span th:text="${client.prenom != null ? client.prenom : client.nom}">Client</span></h1>
-        <a href="/client/opportunites/nouvelle" class="btn-new">+ Publier une opportunité</a>
+    <div class="sidebar-logo">
+        <div class="brand">Custify</div>
+        <div class="role">Espace Client</div>
     </div>
+    <nav class="sidebar-nav">
+        <div class="nav-label">Navigation</div>
+        <a href="/client/dashboard" class="nav-item active"><i class="icon bi bi-grid-1x2-fill"></i> Tableau de bord</a>
+        <a href="/client/opportunites/nouvelle" class="nav-item"><i class="icon bi bi-plus-circle-fill"></i> Publier opportunité</a>
+        <div class="nav-label">Autres</div>
+        <a href="/" class="nav-item"><i class="icon bi bi-globe"></i> Catalogue public</a>
+    </nav>
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn"><i class="bi bi-box-arrow-left"></i> Déconnexion</button>
+        </form>
+    </div>
+</div>
+
+<div class="main">
+    <div class="page-header">
+        <h1>Bienvenue, <span th:text="${client.prenom != null ? client.prenom : client.nom}">Client</span></h1>
+        <a href="/client/opportunites/nouvelle" class="btn-new"><i class="bi bi-plus-circle-fill me-2"></i> Publier une opportunité</a>
+    </div>
+    
     <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
     <!-- Mes opportunités -->
     <div class="card-section">
-        <h2>Mes Opportunités Publiées</h2>
-        <p th:if="${#lists.isEmpty(mesOpportunites)}" style="color:#64748b">Aucune opportunité publiée.</p>
+        <h2><i class="bi bi-briefcase-fill me-2"></i> Mes Opportunités Publiées</h2>
+        <p th:if="${#lists.isEmpty(mesOpportunites)}" style="color:#64748b; padding: 20px 0;">Aucune opportunité publiée.</p>
         <table th:unless="${#lists.isEmpty(mesOpportunites)}">
-            <thead><tr><th>Titre</th><th>Montant</th><th>Catégorie</th><th>Statut</th><th>Actions</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Montant</th>
+                    <th>Catégorie</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
             <tbody>
-            <tr th:each="o : ${mesOpportunites}">
-                <td th:text="${o.titre}"></td>
-                <td th:text="${o.montant + ' €'}"></td>
-                <td th:text="${o.categorie}"></td>
-                <td><span th:class="${o.statut.name() == 'DISPONIBLE' ? 'badge-dispo' : (o.statut.name() == 'ATTRIBUEE' ? 'badge-attrib' : 'badge-conclue')}" th:text="${o.statut}"></span></td>
-                <td>
-                    <a th:if="${o.statut.name() == 'DISPONIBLE'}" th:href="@{'/client/opportunites/' + ${o.id} + '/modifier'}" class="btn-sm-custom btn-edit">Modifier</a>
-                    <form th:if="${o.statut.name() == 'DISPONIBLE'}" th:action="@{'/client/opportunites/' + ${o.id} + '/supprimer'}" method="post" style="display:inline">
-                        <button type="submit" class="btn-sm-custom btn-delete" onclick="return confirm('Supprimer ?')">Supprimer</button>
-                    </form>
-                </td>
-            </tr>
+                <tr th:each="o : ${mesOpportunites}">
+                    <td style="font-weight:600; color:#f8fafc;" th:text="${o.titre}"></td>
+                    <td th:text="${o.montant + ' €'}"></td>
+                    <td th:text="${o.categorie}"></td>
+                    <td>
+                        <span th:class="${o.statut.name() == 'DISPONIBLE' ? 'badge-dispo' : (o.statut.name() == 'ATTRIBUEE' ? 'badge-attrib' : 'badge-conclue')}" th:text="${o.statut}"></span>
+                    </td>
+                    <td>
+                        <a th:if="${o.statut.name() == 'DISPONIBLE'}" th:href="@{'/client/opportunites/' + ${o.id} + '/modifier'}" class="btn-sm-custom btn-edit me-1">Modifier</a>
+                        <form th:if="${o.statut.name() == 'DISPONIBLE'}" th:action="@{'/client/opportunites/' + ${o.id} + '/supprimer'}" method="post" style="display:inline">
+                            <button type="submit" class="btn-sm-custom btn-delete" onclick="return confirm('Supprimer ?')">Supprimer</button>
+                        </form>
+                        <span th:unless="${o.statut.name() == 'DISPONIBLE'}" style="color:#64748b; font-size:0.85rem;">—</span>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 
     <!-- Opportunités disponibles -->
     <div class="card-section">
-        <h2>Opportunités Disponibles (autres clients)</h2>
-        <p th:if="${#lists.isEmpty(opportunitesDisponibles)}" style="color:#64748b">Aucune opportunité disponible.</p>
+        <h2><i class="bi bi-globe-americas me-2"></i> Opportunités Disponibles (autres clients)</h2>
+        <p th:if="${#lists.isEmpty(opportunitesDisponibles)}" style="color:#64748b; padding: 20px 0;">Aucune opportunité disponible.</p>
         <table th:unless="${#lists.isEmpty(opportunitesDisponibles)}">
-            <thead><tr><th>Titre</th><th>Montant</th><th>Catégorie</th><th>Vendeur</th><th>Action</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Montant</th>
+                    <th>Catégorie</th>
+                    <th>Vendeur</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
             <tbody>
-            <tr th:each="o : ${opportunitesDisponibles}">
-                <td><a th:href="@{'/client/opportunites/' + ${o.id}}" style="color:#818cf8" th:text="${o.titre}"></a></td>
-                <td th:text="${o.montant + ' €'}"></td>
-                <td th:text="${o.categorie}"></td>
-                <td th:text="${o.clientVendeur.nom}"></td>
-                <td>
-                    <form th:action="@{/client/demandes}" method="post" style="display:inline">
-                        <input type="hidden" name="opportuniteId" th:value="${o.id}">
-                        <button type="submit" class="btn-sm-custom btn-interest">Je suis intéressé</button>
-                    </form>
-                </td>
-            </tr>
+                <tr th:each="o : ${opportunitesDisponibles}">
+                    <td><a th:href="@{'/client/opportunites/' + ${o.id}}" style="color:#818cf8; font-weight:600;" th:text="${o.titre}"></a></td>
+                    <td th:text="${o.montant + ' €'}"></td>
+                    <td th:text="${o.categorie}"></td>
+                    <td th:text="${o.clientVendeur.nom}"></td>
+                    <td>
+                        <form th:action="@{/client/demandes}" method="post" style="display:inline">
+                            <input type="hidden" name="opportuniteId" th:value="${o.id}">
+                            <button type="submit" class="btn-sm-custom btn-interest"><i class="bi bi-star-fill me-1"></i> Je suis intéressé</button>
+                        </form>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 
     <!-- Mes demandes -->
     <div class="card-section">
-        <h2>Mes Demandes</h2>
-        <p th:if="${#lists.isEmpty(mesDemandes)}" style="color:#64748b">Aucune demande envoyée.</p>
+        <h2><i class="bi bi-send-fill me-2"></i> Mes Demandes</h2>
+        <p th:if="${#lists.isEmpty(mesDemandes)}" style="color:#64748b; padding: 20px 0;">Aucune demande envoyée.</p>
         <table th:unless="${#lists.isEmpty(mesDemandes)}">
-            <thead><tr><th>Opportunité</th><th>Date</th><th>Statut</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Opportunité</th>
+                    <th>Date</th>
+                    <th>Statut</th>
+                    <th>Chat</th>
+                </tr>
+            </thead>
             <tbody>
-            <tr th:each="d : ${mesDemandes}">
-                <td th:text="${d.opportunite.titre}"></td>
-                <td th:text="${#temporals.format(d.dateDemande, 'dd/MM/yyyy HH:mm')}"></td>
-                <td>
-                    <span th:class="${d.statut.name() == 'EN_ATTENTE' ? 'badge-attente' : (d.statut.name() == 'ACCEPTEE' ? 'badge-acceptee' : 'badge-refusee')}" th:text="${d.statut}"></span>
-                    <button class="btn-sm-custom btn-chat ms-2" th:attr="onclick='openChat(' + ${d.opportunite.id} + ', \'' + ${#strings.escapeJavaScript(d.opportunite.titre)} + '\')'">Discuter</button>
-                </td>
-            </tr>
+                <tr th:each="d : ${mesDemandes}">
+                    <td style="font-weight:600; color:#f8fafc;" th:text="${d.opportunite.titre}"></td>
+                    <td th:text="${#temporals.format(d.dateDemande, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td>
+                        <span th:class="${d.statut.name() == 'EN_ATTENTE' ? 'badge-attente' : (d.statut.name() == 'ACCEPTEE' ? 'badge-acceptee' : 'badge-refusee')}" th:text="${d.statut}"></span>
+                    </td>
+                    <td>
+                        <button class="btn-sm-custom btn-chat" th:attr="onclick='openChat(' + ${d.opportunite.id} + ', \'' + ${#strings.escapeJavaScript(d.opportunite.titre)} + '\')'"><i class="bi bi-chat-right-text-fill me-1"></i> Discuter</button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 
     <!-- Affectations reçues -->
     <div class="card-section">
-        <h2>Affectations Reçues</h2>
-        <p th:if="${#lists.isEmpty(mesAffectations)}" style="color:#64748b">Aucune affectation reçue.</p>
+        <h2><i class="bi bi-arrow-left-right me-2"></i> Affectations Reçues</h2>
+        <p th:if="${#lists.isEmpty(mesAffectations)}" style="color:#64748b; padding: 20px 0;">Aucune affectation reçue.</p>
         <table th:unless="${#lists.isEmpty(mesAffectations)}">
-            <thead><tr><th>Opportunité</th><th>Commercial</th><th>Message</th><th>Statut</th><th>Actions</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Opportunité</th>
+                    <th>Commercial</th>
+                    <th>Message</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
             <tbody>
-            <tr th:each="a : ${mesAffectations}">
-                <td th:text="${a.opportunite.titre}"></td>
-                <td th:text="${a.commercial.nom}"></td>
-                <td th:text="${a.messageCommercial}"></td>
-                <td><span th:class="${a.statutClient.name() == 'EN_ATTENTE' ? 'badge-attente' : (a.statutClient.name() == 'ACCEPTEE' ? 'badge-acceptee' : 'badge-refusee')}" th:text="${a.statutClient}"></span></td>
-                <td th:if="${a.statutClient.name() == 'EN_ATTENTE'}">
-                    <form th:action="@{'/client/affectations/' + ${a.id} + '/accepter'}" method="post" style="display:inline">
-                        <button type="submit" class="btn-sm-custom btn-accept">Accepter</button>
-                    </form>
-                    <form th:action="@{'/client/affectations/' + ${a.id} + '/refuser'}" method="post" style="display:inline">
-                        <button type="submit" class="btn-sm-custom btn-refuse">Refuser</button>
-                    </form>
-                    <button class="btn-sm-custom btn-chat ms-1" th:attr="onclick='openChat(' + ${a.opportunite.id} + ', \'' + ${#strings.escapeJavaScript(a.opportunite.titre)} + '\')'">Discuter</button>
-                </td>
-                <td th:if="${a.statutClient.name() != 'EN_ATTENTE'}">
-                    <button class="btn-sm-custom btn-chat" th:attr="onclick='openChat(' + ${a.opportunite.id} + ', \'' + ${#strings.escapeJavaScript(a.opportunite.titre)} + '\')'">Discuter</button>
-                </td>
-            </tr>
+                <tr th:each="a : ${mesAffectations}">
+                    <td style="font-weight:600; color:#f8fafc;" th:text="${a.opportunite.titre}"></td>
+                    <td th:text="${a.commercial.nom}"></td>
+                    <td th:text="${a.messageCommercial}"></td>
+                    <td>
+                        <span th:class="${a.statutClient.name() == 'EN_ATTENTE' ? 'badge-attente' : (a.statutClient.name() == 'ACCEPTEE' ? 'badge-acceptee' : 'badge-refusee')}" th:text="${a.statutClient}"></span>
+                    </td>
+                    <td>
+                        <div th:if="${a.statutClient.name() == 'EN_ATTENTE'}" class="d-inline-flex gap-1">
+                            <form th:action="@{'/client/affectations/' + ${a.id} + '/accepter'}" method="post" style="display:inline">
+                                <button type="submit" class="btn-sm-custom btn-accept">Accepter</button>
+                            </form>
+                            <form th:action="@{'/client/affectations/' + ${a.id} + '/refuser'}" method="post" style="display:inline">
+                                <button type="submit" class="btn-sm-custom btn-refuse">Refuser</button>
+                            </form>
+                            <button class="btn-sm-custom btn-chat" th:attr="onclick='openChat(' + ${a.opportunite.id} + ', \'' + ${#strings.escapeJavaScript(a.opportunite.titre)} + '\')'"><i class="bi bi-chat-right-text-fill"></i></button>
+                        </div>
+                        <div th:if="${a.statutClient.name() != 'EN_ATTENTE'}">
+                            <button class="btn-sm-custom btn-chat" th:attr="onclick='openChat(' + ${a.opportunite.id} + ', \'' + ${#strings.escapeJavaScript(a.opportunite.titre)} + '\')'"><i class="bi bi-chat-right-text-fill me-1"></i> Discuter</button>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 
     <!-- Mes Réunions Planifiées -->
     <div class="card-section">
-        <h2>Mes Réunions (Mises en relation)</h2>
-        <p th:if="${#lists.isEmpty(mesReunions)}" style="color:#64748b">Aucune réunion planifiée.</p>
+        <h2><i class="bi bi-calendar-event-fill me-2"></i> Mes Réunions (Mises en relation)</h2>
+        <p th:if="${#lists.isEmpty(mesReunions)}" style="color:#64748b; padding: 20px 0;">Aucune réunion planifiée.</p>
         <table th:unless="${#lists.isEmpty(mesReunions)}">
-            <thead><tr><th>Sujet</th><th>Opportunité</th><th>Date & Heure</th><th>Lieu / Lien</th><th>Commercial</th><th>Mon Rôle</th><th>Autre Client</th><th>Description</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Sujet</th>
+                    <th>Opportunité</th>
+                    <th>Date & Heure</th>
+                    <th>Lieu / Lien</th>
+                    <th>Commercial</th>
+                    <th>Mon Rôle</th>
+                    <th>Autre Client</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
             <tbody>
-            <tr th:each="r : ${mesReunions}">
-                <td th:text="${r.sujet}"></td>
-                <td th:text="${r.opportunite.titre}"></td>
-                <td th:text="${#temporals.format(r.dateReunion, 'dd/MM/yyyy HH:mm')}"></td>
-                <td th:text="${r.lieu}"></td>
-                <td th:text="${r.commercial.nom}"></td>
-                <td>
-                    <span th:if="${r.clientVendeur.id == client.id}" class="badge bg-info text-dark">Vendeur</span>
-                    <span th:if="${r.clientAcheteur.id == client.id}" class="badge bg-success text-white">Acheteur (Intéressé)</span>
-                </td>
-                <td>
-                    <span th:if="${r.clientVendeur.id == client.id}" th:text="${r.clientAcheteur.nom + ' ' + (r.clientAcheteur.prenom != null ? r.clientAcheteur.prenom : '')}"></span>
-                    <span th:if="${r.clientAcheteur.id == client.id}" th:text="${r.clientVendeur.nom + ' ' + (r.clientVendeur.prenom != null ? r.clientVendeur.prenom : '')}"></span>
-                </td>
-                <td th:text="${r.description}"></td>
-            </tr>
+                <tr th:each="r : ${mesReunions}">
+                    <td style="font-weight:600; color:#f8fafc;" th:text="${r.sujet}"></td>
+                    <td th:text="${r.opportunite.titre}"></td>
+                    <td th:text="${#temporals.format(r.dateReunion, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${r.lieu}"></td>
+                    <td th:text="${r.commercial.nom}"></td>
+                    <td>
+                        <span th:if="${r.clientVendeur.id == client.id}" class="badge bg-info text-dark">Vendeur</span>
+                        <span th:if="${r.clientAcheteur.id == client.id}" class="badge bg-success text-white">Acheteur</span>
+                    </td>
+                    <td>
+                        <span th:if="${r.clientVendeur.id == client.id}" th:text="${r.clientAcheteur.nom + ' ' + (r.clientAcheteur.prenom != null ? r.clientAcheteur.prenom : '')}"></span>
+                        <span th:if="${r.clientAcheteur.id == client.id}" th:text="${r.clientVendeur.nom + ' ' + (r.clientVendeur.prenom != null ? r.clientVendeur.prenom : '')}"></span>
+                    </td>
+                    <td th:text="${r.description}"></td>
+                </tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <!-- Offcanvas Chat -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="chatOffcanvas" style="background-color: #1e293b; color: #e2e8f0; width: 400px; border-left: 1px solid #334155;">
-    <div class="offcanvas-header" style="border-bottom: 1px solid #334155;">
-        <h5 class="offcanvas-title" id="chatOffcanvasLabel" style="color: #818cf8;">Chat: <span id="chatOppTitle"></span></h5>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="chatOffcanvas" style="background-color:#1e293b;color:#e2e8f0;width:420px;border-left:1px solid rgba(255,255,255,0.06);">
+    <div class="offcanvas-header" style="border-bottom:1px solid rgba(255,255,255,0.06);padding:20px 24px;">
+        <h5 class="offcanvas-title" style="color:#818cf8;font-weight:700;"><i class="bi bi-chat-right-text-fill"></i> <span id="chatOppTitle"></span></h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close" onclick="closeChat()"></button>
     </div>
-    <div class="offcanvas-body d-flex flex-column" style="padding: 0;">
-        <div id="chatMessages" class="flex-grow-1 p-3" style="overflow-y: auto; background-color: #0f172a;">
-            <!-- Messages injectés en JS -->
-        </div>
-        <div class="p-3" style="border-top: 1px solid #334155; background-color: #1e293b;">
+    <div class="offcanvas-body d-flex flex-column" style="padding:0;">
+        <div id="chatMessages" class="flex-grow-1 p-3" style="overflow-y:auto;background:#0f172a;"></div>
+        <div class="p-3" style="border-top:1px solid rgba(255,255,255,0.06);background:rgba(30,41,59,0.95);">
             <div class="input-group">
-                <input type="text" id="chatInput" class="form-control" placeholder="Écrire un message..." style="background: #0f172a; border-color: #334155; color: #fff;">
-                <button class="btn btn-primary" id="btnSendChat" style="background: linear-gradient(135deg,#818cf8,#6366f1); border: none; color: white;" onclick="sendMessage()">Envoyer</button>
+                <input type="text" id="chatInput" class="form-control" placeholder="Écrire un message..." style="background:rgba(15,23,42,0.6);border-color:rgba(255,255,255,0.1);color:#fff;border-radius:12px 0 0 12px;">
+                <button class="btn" id="btnSendChat" style="background:linear-gradient(135deg,#818cf8,#6366f1);border:none;color:white;border-radius:0 12px 12px 0;padding:0 20px;font-weight:600;" onclick="sendMessage()">Envoyer</button>
             </div>
         </div>
     </div>
@@ -332,7 +399,6 @@
 
     function appendMessage(msg) {
         const chatMessages = document.getElementById('chatMessages');
-        // Eviter les doublons si websocket + API renvoient le même message
         if (document.getElementById('msg-' + msg.id)) return;
         
         const isSentByMe = (msg.expediteurId === currentUserId);

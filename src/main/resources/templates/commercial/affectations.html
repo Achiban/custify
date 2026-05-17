@@ -16,7 +16,7 @@
         body { background: #0a0f1e; color: #e2e8f0; }
         .sidebar { background: rgba(15,23,42,0.95); backdrop-filter: blur(20px); width: 260px; min-height: 100vh; position: fixed; top: 0; left: 0; padding: 32px 0; border-right: 1px solid rgba(255,255,255,0.06); z-index: 100; display: flex; flex-direction: column; }
         .sidebar-logo { padding: 0 28px 36px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px; }
-        .sidebar-logo .brand { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #ea580c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-logo .brand { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #ea580c); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .sidebar-logo .role { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
         .sidebar-nav { flex: 1; padding: 0 16px; }
         .nav-label { font-size: 0.7rem; color: #475569; text-transform: uppercase; letter-spacing: 1.5px; padding: 0 12px; margin-bottom: 8px; margin-top: 16px; }
@@ -235,11 +235,18 @@ function connectWS() {
 }
 function sendMessage() {
     const input = document.getElementById('chatInput'), contenu = input.value.trim();
-    const csrf = document.querySelector('meta[name="_csrf"]');
-    if (!csrf) { alert('Ctrl+F5 requis'); return; }
+    const csrfMeta = document.querySelector('meta[name="_csrf"]');
+    const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+    if (!csrfMeta || !csrfHeaderMeta) { alert('Ctrl+F5 requis'); return; }
+    const csrfToken = csrfMeta.content;
+    const csrfHeader = csrfHeaderMeta.content;
     if (contenu && currentConversationId) {
         fetch(`/api/conversations/${currentConversationId}/messages?userId=${currentUserId}`, {
-            method: 'POST', headers: {'Content-Type': 'application/json', [csrf.nextElementSibling ? '' : document.querySelector('meta[name="_csrf_header"]').content]: csrf.content},
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json', 
+                [csrfHeader]: csrfToken
+            },
             body: JSON.stringify({ contenu })
         }).then(r => { if(r.ok) { input.value=''; return r.json(); } }).then(m => { if(m && !document.getElementById('msg-'+m.id)) { appendMessage(m); scrollToBottom(); } }).catch(console.error);
     }

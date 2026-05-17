@@ -1,236 +1,131 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier le rôle - Custify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-        body {
-            background-color: #1e2a3a;
-            color: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-        }
-        .sidebar {
-            background-color: #16212e;
-            min-height: 100vh;
-            padding: 20px 0;
-            position: fixed;
-            width: 200px;
-        }
-        .sidebar-brand {
-            color: #4fc3f7;
-            font-weight: bold;
-            padding: 0 20px;
-            margin-bottom: 30px;
-            font-size: 1.2rem;
-        }
-        .sidebar-nav {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .sidebar-nav li {
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .sidebar-nav li:hover {
-            background-color: #1e2a3a;
-        }
-        .sidebar-nav li a {
-            color: #b0bec5;
-            text-decoration: none;
-        }
-        .logout-btn {
-            background-color: #e74c3c;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            cursor: pointer;
-        }
-        .main-content {
-            margin-left: 200px;
-            padding: 30px;
-        }
-        .header {
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            color: #4fc3f7;
-            font-size: 1.8rem;
-            margin: 0 0 10px 0;
-        }
-        .user-info-card {
-            background-color: #263645;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 30px;
-            border-left: 3px solid #4fc3f7;
-        }
-        .user-info-card p {
-            margin: 5px 0;
-            color: #b0bec5;
-        }
-        .user-info-card strong {
-            color: #4fc3f7;
-        }
-        .form-container {
-            background-color: #263645;
-            border-radius: 8px;
-            padding: 30px;
-            max-width: 600px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            color: #b0bec5;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            background-color: #1e2a3a;
-            border: 1px solid #3a4a5c;
-            border-radius: 5px;
-            color: #fff;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        .form-group select:focus {
-            outline: none;
-            border-color: #4fc3f7;
-        }
-        .form-group select.is-invalid {
-            border-color: #e74c3c;
-        }
-        .error-message {
-            color: #e74c3c;
-            font-size: 0.85rem;
-            margin-top: 5px;
-        }
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-        }
-        .btn-primary {
-            background-color: #4fc3f7;
-            color: #fff;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-        }
-        .btn-primary:hover {
-            background-color: #3ab0e0;
-        }
-        .btn-secondary {
-            background-color: #3a4a5c;
-            color: #fff;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            text-decoration: none;
-            transition: background-color 0.3s;
-            display: inline-block;
-        }
-        .btn-secondary:hover {
-            background-color: #4a5a6c;
-        }
-        .role-description {
-            background-color: #1e2a3a;
-            border-radius: 5px;
-            padding: 15px;
-            margin-top: 10px;
-        }
-        .role-description h4 {
-            color: #4fc3f7;
-            margin: 0 0 10px 0;
-            font-size: 0.9rem;
-        }
-        .role-description ul {
-            margin: 0;
-            padding-left: 20px;
-            color: #b0bec5;
-            font-size: 0.85rem;
-        }
-        .role-description ul li {
-            margin: 5px 0;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        *, body { font-family: 'Inter', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0f1e; color: #e2e8f0; }
+        
+        .sidebar { background: rgba(15,23,42,0.95); backdrop-filter: blur(20px); width: 260px; min-height: 100vh; position: fixed; top: 0; left: 0; padding: 32px 0; border-right: 1px solid rgba(255,255,255,0.06); z-index: 100; display: flex; flex-direction: column; }
+        .sidebar-logo { padding: 0 28px 36px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px; }
+        .sidebar-logo .brand { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #f43f5e, #be123c); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-logo .role { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .sidebar-nav { flex: 1; padding: 0 16px; }
+        .nav-label { font-size: 0.7rem; color: #475569; text-transform: uppercase; letter-spacing: 1.5px; padding: 0 12px; margin-bottom: 8px; margin-top: 16px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-radius: 12px; color: #94a3b8; text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s; margin-bottom: 4px; }
+        .nav-item:hover { background: rgba(244, 63, 94, 0.1); color: #f43f5e; transform: translateX(4px); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(190, 18, 60, 0.1)); color: #f43f5e; box-shadow: inset 3px 0 0 #f43f5e; }
+        .nav-item .icon { font-size: 1.1rem; }
+        .sidebar-footer { padding: 24px 16px 0; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 16px; }
+        .logout-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 16px; border-radius: 12px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.15); color: #f87171; font-weight: 600; cursor: pointer; transition: all 0.25s; text-align: left; }
+        .logout-btn:hover { background: #ef4444; color: #fff; }
+        
+        .main { margin-left: 260px; padding: 50px; }
+        .page-header { margin-bottom: 40px; }
+        .page-header h1 { font-size: 2rem; font-weight: 800; color: #f8fafc; margin: 0; }
+        
+        .user-info-card { background: rgba(30,41,59,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 24px; margin-bottom: 32px; border-left: 4px solid #f43f5e; }
+        .user-info-card p { margin: 8px 0; color: #cbd5e1; font-size: 0.95rem; }
+        .user-info-card strong { color: #94a3b8; font-weight: 600; margin-right: 8px; }
+        .user-info-card span { color: #f8fafc; font-weight: 600; }
+        
+        .form-container { background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 40px; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        
+        .form-label { color: #94a3b8; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
+        .form-select { background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); color: #f8fafc; border-radius: 12px; padding: 12px 16px; transition: all 0.2s; }
+        .form-select:focus { border-color: #f43f5e; box-shadow: 0 0 0 4px rgba(244,63,94,0.15); background: rgba(15,23,42,0.9); color: #fff; }
+        
+        .btn-primary-action { background: linear-gradient(135deg, #f43f5e, #be123c); border: none; padding: 13px 28px; border-radius: 12px; color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s; }
+        .btn-primary-action:hover { box-shadow: 0 8px 20px rgba(244,63,94,0.4); transform: translateY(-1px); color: #fff; }
+        
+        .btn-secondary-action { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 13px 28px; border-radius: 12px; color: #cbd5e1; font-weight: 600; font-size: 1rem; text-decoration: none; transition: all 0.3s; display: inline-block; }
+        .btn-secondary-action:hover { background: rgba(255, 255, 255, 0.1); color: #fff; transform: translateY(-1px); }
+        
+        .role-description { background: rgba(15,23,42,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 24px; margin-top: 24px; }
+        .role-description h4 { color: #f43f5e; font-size: 0.95rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .role-description p { margin-bottom: 8px; color: #f8fafc; font-weight: 600; font-size: 0.9rem; }
+        .role-description ul { list-style: none; padding-left: 0; margin-bottom: 20px; }
+        .role-description ul li { margin: 6px 0; color: #94a3b8; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
+        .role-description ul li i { color: #34d399; }
+        .role-description ul li i.bi-x-circle-fill { color: #f87171; }
+        
+        .error-message { color: #f87171; font-size: 0.85rem; margin-top: 6px; font-weight: 500; }
+        .form-select.is-invalid { border-color: #ef4444; }
     </style>
 </head>
 <body>
-        <div class="sidebar">
-        <div class="sidebar-brand">Custify ADMIN</div>
-        <ul class="sidebar-nav">
-            <li><a href="/admin/dashboard">Dashboard</a></li>
-            <li><a href="/admin/users">Utilisateurs</a></li>
-        </ul>
+<div class="sidebar">
+    <div class="sidebar-logo">
+        <div class="brand">Custify</div>
+        <div class="role">Espace Administrateur</div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-label">Navigation</div>
+        <a href="/admin/dashboard" class="nav-item"><i class="icon bi bi-grid-1x2-fill"></i> Tableau de bord</a>
+        <a href="/admin/users" class="nav-item active"><i class="icon bi bi-people-fill"></i> Équipe Interne</a>
+        <a href="/admin/clients" class="nav-item"><i class="icon bi bi-person-badge-fill"></i> Clients</a>
+        <div class="nav-label">Autres</div>
+        <a href="/" class="nav-item"><i class="icon bi bi-globe"></i> Catalogue public</a>
+    </nav>
+    <div class="sidebar-footer">
         <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn">Déconnexion</button>
+            <button type="submit" class="logout-btn"><i class="bi bi-box-arrow-left"></i> Déconnexion</button>
         </form>
     </div>
+</div>
 
-    <div class="main-content">
-        <div class="header">
-            <h1>Modifier le rôle de l'utilisateur</h1>
-        </div>
-
-        <div class="user-info-card">
-            <p><strong>Nom:</strong> <span th:text="${utilisateur.nom}">John Doe</span></p>
-            <p><strong>Email:</strong> <span th:text="${utilisateur.email}">john@example.com</span></p>
-            <p><strong>Rôle actuel:</strong> <span th:text="${utilisateur.role}">ADMIN</span></p>
-        </div>
-
-        <div class="form-container">
-            <form th:action="@{/admin/users/{id}/modifier-role(id=${utilisateur.id})}" th:object="${modifierRoleRequest}" method="post">
-                <div class="form-group">
-                    <label for="role">Nouveau rôle</label>
-                    <select id="role" th:field="*{role}" th:errorclass="is-invalid" required>
-                        <option value="">Sélectionner un rôle</option>
-                        <option th:value="ADMIN">ADMIN</option>
-                        <option th:value="COMMERCIAL">COMMERCIAL</option>
-                        <option th:value="CLIENT">CLIENT</option>
-                    </select>
-                    <div class="error-message" th:if="${#fields.hasErrors('role')}" th:errors="*{role}">Role error</div>
-                </div>
-
-                <div class="role-description">
-                    <h4>📋 Permissions des rôles</h4>
-                    <p><strong>ADMIN :</strong></p>
-                    <ul>
-                        <li>✅ Accès complet au dashboard</li>
-                        <li>✅ Gestion des utilisateurs</li>
-                        <li>✅ Gestion des clients, prospects, opportunités, interactions</li>
-                    </ul>
-                    <p style="margin-top: 15px;"><strong>COMMERCIAL :</strong></p>
-                    <ul>
-                        <li>✅ Accès au dashboard</li>
-                        <li>❌ Pas d'accès à la gestion des utilisateurs</li>
-                        <li>✅ Gestion des clients, prospects, opportunités, interactions</li>
-                    </ul>
-                </div>
-
-                <div class="button-group">
-                    <button type="submit" class="btn-primary">Modifier le rôle</button>
-                    <a href="/admin/users" class="btn-secondary">Annuler</a>
-                </div>
-            </form>
-        </div>
+<div class="main">
+    <div class="page-header">
+        <h1><i class="bi bi-shield-check text-danger me-2"></i> Modifier le rôle de l'utilisateur</h1>
+        <p>Ajustez les privilèges d'accès d'un collaborateur.</p>
     </div>
+    
+    <div class="user-info-card">
+        <p><strong>Nom :</strong> <span th:text="${utilisateur.nom}">John Doe</span></p>
+        <p><strong>Email :</strong> <span th:text="${utilisateur.email}">john@example.com</span></p>
+        <p><strong>Rôle actuel :</strong> <span th:text="${utilisateur.role}">ADMIN</span></p>
+    </div>
+
+    <div class="form-container">
+        <form th:action="@{/admin/users/{id}/modifier-role(id=${utilisateur.id})}" th:object="${modifierRoleRequest}" method="post">
+            <div class="mb-4">
+                <label for="role" class="form-label">Nouveau rôle *</label>
+                <select id="role" th:field="*{role}" class="form-select" th:errorclass="is-invalid" required>
+                    <option value="">-- Choisir un nouveau rôle --</option>
+                    <option th:value="ADMIN">ADMIN</option>
+                    <option th:value="COMMERCIAL">COMMERCIAL</option>
+                    <option th:value="CLIENT">CLIENT</option>
+                </select>
+                <div class="error-message" th:if="${#fields.hasErrors('role')}" th:errors="*{role}">Role error</div>
+            </div>
+
+            <div class="role-description">
+                <h4><i class="bi bi-shield-lock-fill"></i> Permissions des rôles</h4>
+                <p>ADMIN :</p>
+                <ul>
+                    <li><i class="bi bi-check-circle-fill"></i> Accès complet au dashboard</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Gestion des utilisateurs internes</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Gestion des clients & opportunités</li>
+                </ul>
+                <p style="margin-top: 16px;">COMMERCIAL :</p>
+                <ul>
+                    <li><i class="bi bi-check-circle-fill"></i> Accès au dashboard commercial</li>
+                    <li><i class="bi bi-x-circle-fill"></i> Pas d'accès à la gestion des utilisateurs internes</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Gestion des clients & opportunités</li>
+                </ul>
+            </div>
+
+            <div class="d-flex gap-3 mt-5">
+                <button type="submit" class="btn-primary-action"><i class="bi bi-check-circle-fill me-1"></i> Modifier le rôle</button>
+                <a href="/admin/users" class="btn-secondary-action"><i class="bi bi-x-circle-fill me-1"></i> Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>
