@@ -10,23 +10,8 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: ''
-          MYSQL_DATABASE: custify
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
@@ -34,17 +19,22 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
 
-      - name: Cache Maven packages
-        uses: actions/cache@v3
+      - name: Build & test
+        run: ./mvnw clean package
+
+      - name: Publish test report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          name: surefire-reports
+          path: target/surefire-reports/
+          if-no-files-found: ignore
 
-      - name: Build, test and package
-        env:
-          DB_URL: jdbc:mysql://localhost:3306/custify?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-          DB_USERNAME: root
-          DB_PASSWORD: ''
-        run: mvn clean package
+      - name: Upload WAR
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: custify-${{ github.sha }}
+          path: target/*.war

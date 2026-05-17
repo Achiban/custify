@@ -6,6 +6,7 @@ import com.custify.repository.UtilisateurRepository;
 import com.custify.service.AffectationService;
 import com.custify.service.DemandeService;
 import com.custify.service.OpportuniteMarketplaceService;
+import com.custify.service.ReunionService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,13 +24,13 @@ public class ClientMarketplaceController {
     private final DemandeService demandeService;
     private final AffectationService affectationService;
     private final UtilisateurRepository utilisateurRepository;
-    private final com.custify.service.ReunionService reunionService;
+    private final ReunionService reunionService;
 
     public ClientMarketplaceController(OpportuniteMarketplaceService opportuniteService,
                                        DemandeService demandeService,
                                        AffectationService affectationService,
                                        UtilisateurRepository utilisateurRepository,
-                                       com.custify.service.ReunionService reunionService) {
+                                       ReunionService reunionService) {
         this.opportuniteService = opportuniteService;
         this.demandeService = demandeService;
         this.affectationService = affectationService;
