@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Client - Custify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
+        .sidebar { background: #1e293b; width: 220px; min-height: 100vh; position: fixed; padding: 20px 0; border-right: 1px solid #334155; }
+        .sidebar-brand { color: #818cf8; font-weight: 700; font-size: 1.2rem; padding: 0 20px; margin-bottom: 30px; }
+        .sidebar-nav { list-style: none; padding: 0; }
+        .sidebar-nav li a { display: block; padding: 12px 20px; color: #94a3b8; text-decoration: none; transition: 0.2s; }
+        .sidebar-nav li a:hover, .sidebar-nav li a.active { background: #0f172a; color: #818cf8; }
+        .main { margin-left: 220px; padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header h1 { color: #818cf8; font-size: 1.6rem; }
+        .card-section { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+        .card-section h2 { font-size: 1.1rem; color: #818cf8; margin-bottom: 16px; }
+        table { width: 100%; }
+        table th { color: #94a3b8; font-weight: 500; border-bottom: 1px solid #334155; padding: 10px 8px; font-size: 0.85rem; }
+        table td { padding: 10px 8px; border-bottom: 1px solid rgba(51,65,85,0.5); font-size: 0.9rem; }
+        .badge-dispo { background: #10b981; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; }
+        .badge-attrib { background: #f59e0b; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; }
+        .badge-conclue { background: #6366f1; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; }
+        .badge-attente { background: #f59e0b; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; }
+        .badge-acceptee { background: #10b981; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; }
+        .badge-refusee { background: #ef4444; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; }
+        .btn-sm-custom { padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 500; border: none; cursor: pointer; }
+        .btn-interest { background: #6366f1; color: #fff; }
+        .btn-interest:hover { background: #4f46e5; color: #fff; }
+        .btn-accept { background: #10b981; color: #fff; }
+        .btn-accept:hover { background: #059669; color: #fff; }
+        .btn-refuse { background: #ef4444; color: #fff; }
+        .btn-refuse:hover { background: #dc2626; color: #fff; }
+        .btn-edit { background: #f59e0b; color: #fff; }
+        .btn-delete { background: #ef4444; color: #fff; }
+        .btn-new { background: linear-gradient(135deg,#6366f1,#4f46e5); color: #fff; padding: 10px 20px; border-radius: 10px; border: none; font-weight: 600; text-decoration: none; }
+        .btn-new:hover { box-shadow: 0 6px 20px rgba(99,102,241,0.4); color: #fff; }
+        .logout-btn { background: #ef4444; border: none; color: #fff; padding: 10px 20px; border-radius: 8px; position: fixed; bottom: 20px; left: 20px; cursor: pointer; }
+        .alert { border-radius: 8px; padding: 12px; margin-bottom: 20px; }
+        .alert-success { background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #6ee7b7; }
+        .alert-danger { background: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #fca5a5; }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-brand">Custify CLIENT</div>
+    <ul class="sidebar-nav">
+        <li><a href="/client/dashboard" class="active">Dashboard</a></li>
+        <li><a href="/client/opportunites/nouvelle">Publier une opportunité</a></li>
+        <li><a href="/">Catalogue public</a></li>
+    </ul>
+    <form th:action="@{/logout}" method="post"><button type="submit" class="logout-btn">Déconnexion</button></form>
+</div>
+<div class="main">
+    <div class="header">
+        <h1>Bienvenue, <span th:text="${client.prenom != null ? client.prenom : client.nom}">Client</span></h1>
+        <a href="/client/opportunites/nouvelle" class="btn-new">+ Publier une opportunité</a>
+    </div>
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <!-- Mes opportunités -->
+    <div class="card-section">
+        <h2>Mes Opportunités Publiées</h2>
+        <p th:if="${#lists.isEmpty(mesOpportunites)}" style="color:#64748b">Aucune opportunité publiée.</p>
+        <table th:unless="${#lists.isEmpty(mesOpportunites)}">
+            <thead><tr><th>Titre</th><th>Montant</th><th>Catégorie</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>
+            <tr th:each="o : ${mesOpportunites}">
+                <td th:text="${o.titre}"></td>
+                <td th:text="${o.montant + ' €'}"></td>
+                <td th:text="${o.categorie}"></td>
+                <td><span th:class="${o.statut.name() == 'DISPONIBLE' ? 'badge-dispo' : (o.statut.name() == 'ATTRIBUEE' ? 'badge-attrib' : 'badge-conclue')}" th:text="${o.statut}"></span></td>
+                <td>
+                    <a th:if="${o.statut.name() == 'DISPONIBLE'}" th:href="@{'/client/opportunites/' + ${o.id} + '/modifier'}" class="btn-sm-custom btn-edit">Modifier</a>
+                    <form th:if="${o.statut.name() == 'DISPONIBLE'}" th:action="@{'/client/opportunites/' + ${o.id} + '/supprimer'}" method="post" style="display:inline">
+                        <button type="submit" class="btn-sm-custom btn-delete" onclick="return confirm('Supprimer ?')">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Opportunités disponibles -->
+    <div class="card-section">
+        <h2>Opportunités Disponibles (autres clients)</h2>
+        <p th:if="${#lists.isEmpty(opportunitesDisponibles)}" style="color:#64748b">Aucune opportunité disponible.</p>
+        <table th:unless="${#lists.isEmpty(opportunitesDisponibles)}">
+            <thead><tr><th>Titre</th><th>Montant</th><th>Catégorie</th><th>Vendeur</th><th>Action</th></tr></thead>
+            <tbody>
+            <tr th:each="o : ${opportunitesDisponibles}">
+                <td><a th:href="@{'/client/opportunites/' + ${o.id}}" style="color:#818cf8" th:text="${o.titre}"></a></td>
+                <td th:text="${o.montant + ' €'}"></td>
+                <td th:text="${o.categorie}"></td>
+                <td th:text="${o.clientVendeur.nom}"></td>
+                <td>
+                    <form th:action="@{/client/demandes}" method="post" style="display:inline">
+                        <input type="hidden" name="opportuniteId" th:value="${o.id}">
+                        <button type="submit" class="btn-sm-custom btn-interest">Je suis intéressé</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mes demandes -->
+    <div class="card-section">
+        <h2>Mes Demandes</h2>
+        <p th:if="${#lists.isEmpty(mesDemandes)}" style="color:#64748b">Aucune demande envoyée.</p>
+        <table th:unless="${#lists.isEmpty(mesDemandes)}">
+            <thead><tr><th>Opportunité</th><th>Date</th><th>Statut</th></tr></thead>
+            <tbody>
+            <tr th:each="d : ${mesDemandes}">
+                <td th:text="${d.opportunite.titre}"></td>
+                <td th:text="${#temporals.format(d.dateDemande, 'dd/MM/yyyy HH:mm')}"></td>
+                <td><span th:class="${d.statut.name() == 'EN_ATTENTE' ? 'badge-attente' : (d.statut.name() == 'ACCEPTEE' ? 'badge-acceptee' : 'badge-refusee')}" th:text="${d.statut}"></span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Affectations reçues -->
+    <div class="card-section">
+        <h2>Affectations Reçues</h2>
+        <p th:if="${#lists.isEmpty(mesAffectations)}" style="color:#64748b">Aucune affectation reçue.</p>
+        <table th:unless="${#lists.isEmpty(mesAffectations)}">
+            <thead><tr><th>Opportunité</th><th>Commercial</th><th>Message</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>
+            <tr th:each="a : ${mesAffectations}">
+                <td th:text="${a.opportunite.titre}"></td>
+                <td th:text="${a.commercial.nom}"></td>
+                <td th:text="${a.messageCommercial}"></td>
+                <td><span th:class="${a.statutClient.name() == 'EN_ATTENTE' ? 'badge-attente' : (a.statutClient.name() == 'ACCEPTEE' ? 'badge-acceptee' : 'badge-refusee')}" th:text="${a.statutClient}"></span></td>
+                <td th:if="${a.statutClient.name() == 'EN_ATTENTE'}">
+                    <form th:action="@{'/client/affectations/' + ${a.id} + '/accepter'}" method="post" style="display:inline">
+                        <button type="submit" class="btn-sm-custom btn-accept">Accepter</button>
+                    </form>
+                    <form th:action="@{'/client/affectations/' + ${a.id} + '/refuser'}" method="post" style="display:inline">
+                        <button type="submit" class="btn-sm-custom btn-refuse">Refuser</button>
+                    </form>
+                </td>
+                <td th:if="${a.statutClient.name() != 'EN_ATTENTE'}">—</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mes Réunions Planifiées -->
+    <div class="card-section">
+        <h2>Mes Réunions (Mises en relation)</h2>
+        <p th:if="${#lists.isEmpty(mesReunions)}" style="color:#64748b">Aucune réunion planifiée.</p>
+        <table th:unless="${#lists.isEmpty(mesReunions)}">
+            <thead><tr><th>Sujet</th><th>Opportunité</th><th>Date & Heure</th><th>Lieu / Lien</th><th>Commercial</th><th>Mon Rôle</th><th>Autre Client</th><th>Description</th></tr></thead>
+            <tbody>
+            <tr th:each="r : ${mesReunions}">
+                <td th:text="${r.sujet}"></td>
+                <td th:text="${r.opportunite.titre}"></td>
+                <td th:text="${#temporals.format(r.dateReunion, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${r.lieu}"></td>
+                <td th:text="${r.commercial.nom}"></td>
+                <td>
+                    <span th:if="${r.clientVendeur.id == client.id}" class="badge bg-info text-dark">Vendeur</span>
+                    <span th:if="${r.clientAcheteur.id == client.id}" class="badge bg-success text-white">Acheteur (Intéressé)</span>
+                </td>
+                <td>
+                    <span th:if="${r.clientVendeur.id == client.id}" th:text="${r.clientAcheteur.nom + ' ' + (r.clientAcheteur.prenom != null ? r.clientAcheteur.prenom : '')}"></span>
+                    <span th:if="${r.clientAcheteur.id == client.id}" th:text="${r.clientVendeur.nom + ' ' + (r.clientVendeur.prenom != null ? r.clientVendeur.prenom : '')}"></span>
+                </td>
+                <td th:text="${r.description}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

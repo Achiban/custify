@@ -1,0 +1,172 @@
+package com.custify.controller;
+
+import com.custify.dto.CreerAffectationRequest;
+import com.custify.model.Utilisateur;
+import com.custify.model.enums.Role;
+import com.custify.repository.UtilisateurRepository;
+import com.custify.service.AffectationService;
+import com.custify.service.DemandeService;
+import com.custify.service.OpportuniteMarketplaceService;
+import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+@Controller
+@RequestMapping("/commercial")
+public class CommercialController {
+
+    private final OpportuniteMarketplaceService opportuniteService;
+    private final DemandeService demandeService;
+    private final AffectationService affectationService;
+    private final UtilisateurRepository utilisateurRepository;
+    private final com.custify.service.ReunionService reunionService;
+
+    public CommercialController(OpportuniteMarketplaceService opportuniteService,
+                                DemandeService demandeService,
+                                AffectationService affectationService,
+                                UtilisateurRepository utilisateurRepository,
+                                com.custify.service.ReunionService reunionService) {
+        this.opportuniteService = opportuniteService;
+        this.demandeService = demandeService;
+        this.affectationService = affectationService;
+        this.utilisateurRepository = utilisateurRepository;
+        this.reunionService = reunionService;
+    }
+
+    private Utilisateur getCommercial(UserDetails userDetails) {
+        return utilisateurRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+    }
+
+    // ── Dashboard ─────────────────────────────────────────────────────────────
+    @GetMapping("/dashboard")
+    public String dashboard(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        Utilisateur commercial = getCommercial(userDetails);
+        model.addAttribute("commercial", commercial);
+        model.addAttribute("opportunitesDisponibles", opportuniteService.listerDisponibles());
+        model.addAttribute("demandesEnAttente", demandeService.listerEnAttente());
+        model.addAttribute("clients", utilisateurRepository.findByRole(Role.CLIENT));
+        model.addAttribute("mesAffectations", affectationService.listerParCommercial(commercial));
+        model.addAttribute("mesReunions", reunionService.listerParCommercial(commercial));
+        model.addAttribute("affectationRequest", new CreerAffectationRequest());
+        return "commercial/dashboard";
+    }
+
+    // ── Affectations ──────────────────────────────────────────────────────────
+    @PostMapping("/affectations")
+    public String creerAffectation(@Valid @ModelAttribute("affectationRequest") CreerAffectationRequest request,
+                                   BindingResult result,
+                                   @AuthenticationPrincipal UserDetails userDetails,
+                                   RedirectAttributes redirectAttributes,
+                                   Model model) {
+        if (result.hasErrors()) {
+            Utilisateur commercial = getCommercial(userDetails);
+            model.addAttribute("commercial", commercial);
+            model.addAttribute("opportunitesDisponibles", opportuniteService.listerDisponibles());
+            model.addAttribute("demandesEnAttente", demandeService.listerEnAttente());
+            model.addAttribute("clients", utilisateurRepository.findByRole(Role.CLIENT));
+            model.addAttribute("mesAffectations", affectationService.listerParCommercial(commercial));
+            model.addAttribute("mesReunions", reunionService.listerParCommercial(commercial));
+            return "commercial/dashboard";
+        }
+        try {
+            Utilisateur commercial = getCommercial(userDetails);
+            affectationService.creerAffectation(request, commercial);
+            redirectAttributes.addFlashAttribute("message", "Affectation créée avec succès !");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/commercial/dashboard";
+    }
+
+    // ── Réunions ──────────────────────────────────────────────────────────────
+    @GetMapping("/affectations/{id}/reunion")
+    public String planifierReunionForm(@PathVariable Long id,
+                                       @AuthenticationPrincipal UserDetails userDetails,
+                                       Model model) {
+        Utilisateur commercial = getCommercial(userDetails);
+        var affectation = affectationService.listerParCommercial(commercial).stream()
+                .filter(a -> a.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Affectation non trouvée ou non autorisée"));
+
+        model.addAttribute("affectation", affectation);
+        return "commercial/reunion-form";
+    }
+
+    @PostMapping("/affectations/{id}/reunion")
+    public String planifierReunion(@PathVariable Long id,
+                                   @RequestParam String dateReunion,
+                                   @RequestParam String sujet,
+                                   @RequestParam String lieu,
+                                   @RequestParam String description,
+                                   @AuthenticationPrincipal UserDetails userDetails,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            Utilisateur commercial = getCommercial(userDetails);
+            java.time.LocalDateTime dt = java.time.LocalDateTime.parse(dateReunion);
+            reunionService.organiserReunion(id, dt, sujet, lieu, description, commercial);
+            redirectAttributes.addFlashAttribute("message", "Réunion planifiée avec succès !");
+        } catch (java.time.format.DateTimeParseException e) {
+            redirectAttributes.addFlashAttribute("error", "Format de date invalide. Veuillez vérifier la date saisie.");
+            return "redirect:/commercial/affectations/" + id + "/reunion";
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Une erreur est survenue lors de la planification de la réunion : " + e.getMessage());
+        }
+        return "redirect:/commercial/dashboard";
+    }
+
+    // ── Gestion des Clients (Consultation / Modification / Suppression) ────────
+    @GetMapping("/clients/{id}/modifier")
+    public String modifierClientForm(@PathVariable Long id, Model model) {
+        Utilisateur client = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Client non trouvé: " + id));
+        model.addAttribute("client", client);
+        return "commercial/modifier-client";
+    }
+
+    @PostMapping("/clients/{id}/modifier")
+    public String modifierClient(@PathVariable Long id,
+                                 @RequestParam String nom,
+                                 @RequestParam String prenom,
+                                 @RequestParam String email,
+                                 @RequestParam String telephone,
+                                 @RequestParam String entreprise,
+                                 @RequestParam String adresse,
+                                 RedirectAttributes redirectAttributes) {
+        Utilisateur client = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Client non trouvé: " + id));
+
+        // Vérifier l'unicité de l'email si modifié
+        if (!client.getEmail().equalsIgnoreCase(email) && utilisateurRepository.findByEmail(email).isPresent()) {
+            redirectAttributes.addFlashAttribute("error", "L'adresse email est déjà utilisée.");
+            return "redirect:/commercial/clients/" + id + "/modifier";
+        }
+
+        client.setNom(nom);
+        client.setPrenom(prenom);
+        client.setEmail(email);
+        client.setTelephone(telephone);
+        client.setEntreprise(entreprise);
+        client.setAdresse(adresse);
+        utilisateurRepository.save(client);
+
+        redirectAttributes.addFlashAttribute("message", "Le client a été modifié avec succès !");
+        return "redirect:/commercial/dashboard";
+    }
+
+    @PostMapping("/clients/{id}/supprimer")
+    public String supprimerClient(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Utilisateur client = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Client non trouvé: " + id));
+        utilisateurRepository.delete(client);
+        redirectAttributes.addFlashAttribute("message", "Le client a été supprimé avec succès !");
+        return "redirect:/commercial/dashboard";
+    }
+}

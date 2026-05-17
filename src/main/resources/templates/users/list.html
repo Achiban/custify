@@ -155,18 +155,10 @@
 </head>
 <body>
     <div class="sidebar">
-        <div class="sidebar-brand">
-            Custify — 
-            <span sec:authorize="hasRole('ADMIN')">ADMIN</span>
-            <span sec:authorize="hasRole('COMMERCIAL')">COMMERCIAL</span>
-        </div>
+        <div class="sidebar-brand">Custify ADMIN</div>
         <ul class="sidebar-nav">
-            <li><a href="/dashboard">Dashboard</a></li>
-            <li sec:authorize="hasRole('ADMIN')"><a href="/users">Utilisateurs</a></li>
-            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/clients">Clients</a></li>
-            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/prospects">Prospects</a></li>
-            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/opportunites">Opportunités</a></li>
-            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/interactions">Interactions</a></li>
+            <li><a href="/admin/dashboard">Dashboard</a></li>
+            <li><a href="/admin/users">Utilisateurs</a></li>
         </ul>
         <form th:action="@{/logout}" method="post">
             <button type="submit" class="logout-btn">Déconnexion</button>
@@ -176,7 +168,7 @@
     <div class="main-content">
         <div class="header">
             <h1>Utilisateurs</h1>
-            <a href="/users/nouveau" class="btn-primary">Créer un utilisateur</a>
+            <a href="/admin/users/nouveau" class="btn-primary">Créer un utilisateur</a>
         </div>
 
         <div th:if="${message}" class="alert alert-success">
@@ -201,13 +193,10 @@
                         <td th:text="${utilisateur.email}">john@example.com</td>
                         <td th:text="${utilisateur.role}">USER</td>
                         <td>
-                            <a th:href="@{/users/{id}/modifier(id=${utilisateur.id})}" class="btn-edit">
-                                Modifier
-                            </a>
-                            <a th:href="@{/users/{id}/modifier-role(id=${utilisateur.id})}" class="btn-edit">
+                            <a th:href="@{/admin/users/{id}/modifier-role(id=${utilisateur.id})}" class="btn-edit">
                                 Modifier rôle
                             </a>
-                            <form th:action="@{/users/{id}/supprimer(id=${utilisateur.id})}" method="post" style="display: inline; margin: 0;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur?');">
+                            <form th:action="@{/admin/users/{id}/supprimer(id=${utilisateur.id})}" method="post" style="display: inline; margin: 0;" onsubmit="return confirm('Supprimer cet utilisateur ?');">
                                 <button type="submit" class="btn-delete">Supprimer</button>
                             </form>
                         </td>

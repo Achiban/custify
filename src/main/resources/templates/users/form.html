@@ -143,17 +143,10 @@
 </head>
 <body>
     <div class="sidebar">
-        <div class="sidebar-brand">Custify  
-            <span sec:authorize="hasRole('ADMIN')">ADMIN</span>
-            <span sec:authorize="hasRole('COMMERCIAL')">COMMERCIAL</span>
-        </div>
+        <div class="sidebar-brand">Custify ADMIN</div>
         <ul class="sidebar-nav">
-            <li><a href="/dashboard">Dashboard</a></li>
-            <li sec:authorize="hasRole('ADMIN')"><a href="/users">Utilisateurs</a></li>
-            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/clients">Clients</a></li>
-            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/prospects">Prospects</a></li>
-            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/opportunites">Opportunités</a></li>
-            <li sec:authorize="hasAnyRole('ADMIN','COMMERCIAL')"><a href="/interactions">Interactions</a></li>
+            <li><a href="/admin/dashboard">Dashboard</a></li>
+            <li><a href="/admin/users">Utilisateurs</a></li>
         </ul>
         <form th:action="@{/logout}" method="post">
             <button type="submit" class="logout-btn">Déconnexion</button>
@@ -166,7 +159,7 @@
         </div>
 
         <div class="form-container">
-            <form th:action="@{/users}" th:object="${utilisateur}" method="post">
+            <form th:action="@{/admin/users}" th:object="${utilisateur}" method="post">
                 <div class="form-group">
                     <label for="nom">Nom</label>
                     <input type="text" id="nom" th:field="*{nom}" th:errorclass="is-invalid" required>
@@ -197,7 +190,7 @@
 
                 <div class="button-group">
                     <button type="submit" class="btn-primary">Créer</button>
-                    <a href="/users" class="btn-secondary">Annuler</a>
+                    <a href="/admin/users" class="btn-secondary">Annuler</a>
                 </div>
             </form>
         </div>

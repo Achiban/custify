@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détail Opportunité - Custify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 60px 20px; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 36px; max-width: 700px; width: 100%; }
+        h1 { color: #818cf8; font-size: 1.5rem; margin-bottom: 8px; }
+        .meta { color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px; }
+        .badge-cat { background: rgba(99,102,241,0.15); color: #818cf8; padding: 4px 12px; border-radius: 16px; font-size: 0.8rem; }
+        .montant { font-size: 2rem; font-weight: 700; color: #10b981; margin: 20px 0; }
+        .desc { background: #0f172a; border-radius: 10px; padding: 20px; margin-bottom: 20px; line-height: 1.6; }
+        a.back { color: #818cf8; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <span class="badge-cat" th:text="${opportunite.categorie != null ? opportunite.categorie : 'Autre'}"></span>
+    <h1 th:text="${opportunite.titre}">Titre</h1>
+    <div class="meta">
+        Publié par <strong th:text="${opportunite.clientVendeur.nom + ' ' + (opportunite.clientVendeur.prenom != null ? opportunite.clientVendeur.prenom : '')}"></strong>
+        — <span th:text="${#temporals.format(opportunite.datePublication, 'dd/MM/yyyy')}"></span>
+        — Statut: <strong th:text="${opportunite.statut}"></strong>
+    </div>
+    <div class="montant" th:text="${opportunite.montant + ' €'}">0 €</div>
+    <div class="desc" th:text="${opportunite.descriptionComplete}">Description complète</div>
+    <div class="mt-4 d-flex justify-content-between align-items-center">
+        <a class="back" href="/client/dashboard">← Retour au dashboard</a>
+        
+        <!-- Actions pour exprimer son intérêt -->
+        <div th:if="${!estLeVendeur && opportunite.statut.name() == 'DISPONIBLE'}">
+            <!-- Si déjà intéressé -->
+            <span th:if="${dejaDemande}" class="badge bg-secondary p-3" style="font-size:0.9rem;border-radius:8px;">✓ Intérêt déjà manifesté (En attente)</span>
+            
+            <!-- Si pas encore intéressé -->
+            <form th:if="${!dejaDemande}" th:action="@{/client/demandes}" method="post" style="display:inline">
+                <input type="hidden" name="opportuniteId" th:value="${opportunite.id}">
+                <button type="submit" class="btn text-white" style="background: linear-gradient(135deg,#6366f1,#4f46e5); border: none; padding: 10px 24px; border-radius: 8px; font-weight:600; box-shadow: 0 4px 15px rgba(99,102,241,0.3); transition:all 0.3s;">
+                    Je suis intéressé
+                </button>
+            </form>
+        </div>
+        <div th:if="${estLeVendeur}">
+            <span class="badge bg-info text-dark p-3" style="font-size:0.9rem;border-radius:8px;">Votre opportunité</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

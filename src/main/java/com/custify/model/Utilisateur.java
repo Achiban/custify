@@ -41,22 +41,51 @@ public class Utilisateur {
     @Column(nullable = false, length = 20)
     private Role role = Role.COMMERCIAL;
 
-    @OneToMany(mappedBy = "utilisateur")
-    private List<Client> clients = new ArrayList<>();
+    @Column(length = 100)
+    private String prenom;
 
-    @OneToMany(mappedBy = "utilisateur")
-    private List<Prospect> prospects = new ArrayList<>();
+    @Column(length = 30)
+    private String telephone;
 
-    @OneToMany(mappedBy = "utilisateur")
-    private List<Interaction> interactions = new ArrayList<>();
+    @Column(length = 150)
+    private String entreprise;
 
-    @OneToMany(mappedBy = "createur")
+    @Column(length = 255)
+    private String adresse;
+
+    @Column(length = 50)
+    private String siret;
+
+    @Column(name = "date_inscription")
+    private java.time.LocalDateTime dateInscription;
+
+    @jakarta.persistence.ManyToMany
+    @jakarta.persistence.JoinTable(
+        name = "utilisateur_secteur",
+        joinColumns = @jakarta.persistence.JoinColumn(name = "id_user"),
+        inverseJoinColumns = @jakarta.persistence.JoinColumn(name = "id_secteur")
+    )
+    private List<Secteur> secteurs = new ArrayList<>();
+
+    @OneToMany(mappedBy = "clientVendeur", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    private List<Opportunite> opportunitesVendeur = new ArrayList<>();
+
+    @OneToMany(mappedBy = "clientDemandeur", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    private List<DemandeOpportunite> demandesOpportunite = new ArrayList<>();
+
+    @OneToMany(mappedBy = "clientBeneficiaire", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    private List<Affectation> affectationsRecues = new ArrayList<>();
+
+    @OneToMany(mappedBy = "commercial", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    private List<Affectation> affectationsDonnees = new ArrayList<>();
+
+    @OneToMany(mappedBy = "createur", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
     private List<Canal> canauxCrees = new ArrayList<>();
 
-    @OneToMany(mappedBy = "expediteur")
+    @OneToMany(mappedBy = "expediteur", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
     private List<Message> messagesEnvoyes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "destinataire")
+    @OneToMany(mappedBy = "destinataire", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
     private List<Message> messagesRecus = new ArrayList<>();
 
     public void setNom(String nom) {

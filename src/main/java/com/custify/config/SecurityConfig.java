@@ -1,5 +1,6 @@
 package com.custify.config;
 
+import com.custify.security.RoleBasedAuthenticationSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,33 +15,39 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final RoleBasedAuthenticationSuccessHandler successHandler;
+
+    public SecurityConfig(RoleBasedAuthenticationSuccessHandler successHandler) {
+        this.successHandler = successHandler;
+    }
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        // Ressources statiques accessibles à tous
+                        // Ressources statiques et pages publiques
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/", "/inscription", "/login").permitAll()
+                        .requestMatchers("/opportunites/public").permitAll()
 
                         // Gestion des utilisateurs - ADMIN uniquement
-                        .requestMatchers("/users/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**", "/users/**").hasRole("ADMIN")
 
-                        // Dashboard accessible à tous les utilisateurs authentifiés
-                        .requestMatchers("/dashboard").hasAnyRole("ADMIN", "COMMERCIAL")
+                        // Zone client
+                        .requestMatchers("/client/**").hasRole("CLIENT")
 
-                        // Gestion clients, opportunités, interactions - ADMIN et COMMERCIAL
-                        .requestMatchers("/clients/**").hasAnyRole("ADMIN", "COMMERCIAL")
-                        .requestMatchers("/prospects/new", "/prospects/save").hasRole("COMMERCIAL")
-                        .requestMatchers("/prospects/**").hasAnyRole("ADMIN", "COMMERCIAL")
-                        .requestMatchers("/opportunites/**").hasAnyRole("ADMIN", "COMMERCIAL")
-                        .requestMatchers("/interactions/**").hasAnyRole("ADMIN", "COMMERCIAL")
+                        // Zone commercial
+                        .requestMatchers("/commercial/**").hasRole("COMMERCIAL")
+
+                        // Chat - tous authentifiés
+                        .requestMatchers("/chat/**", "/ws/**", "/topic/**", "/app/**").authenticated()
 
                         // Toute autre requête nécessite une authentification
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/dashboard", true)
+                        .successHandler(successHandler)
                         .failureUrl("/login?error=true")
                         .usernameParameter("email")
                         .passwordParameter("password")
@@ -67,3 +74,4 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 }
+

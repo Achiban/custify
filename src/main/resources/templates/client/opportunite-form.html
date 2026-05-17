@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opportunité - Custify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 60px 20px; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 36px; max-width: 600px; width: 100%; }
+        h1 { color: #818cf8; font-size: 1.5rem; margin-bottom: 20px; }
+        .form-label { color: #94a3b8; }
+        .form-control, .form-select { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; border-radius: 8px; }
+        .form-control:focus { border-color: #6366f1; background: #0f172a; color: #e2e8f0; box-shadow: 0 0 0 2px rgba(99,102,241,0.2); }
+        .btn-submit { width: 100%; padding: 12px; background: linear-gradient(135deg,#6366f1,#4f46e5); border: none; border-radius: 10px; color: #fff; font-weight: 600; }
+        .btn-submit:hover { box-shadow: 0 6px 20px rgba(99,102,241,0.4); color: #fff; }
+        a.back { color: #818cf8; text-decoration: none; display: block; text-align: center; margin-top: 16px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1 th:text="${opportuniteId != null ? 'Modifier l''opportunité' : 'Publier une opportunité'}">Formulaire</h1>
+    <form method="post" th:action="${opportuniteId != null ? '/client/opportunites/' + opportuniteId + '/modifier' : '/client/opportunites'}" th:object="${opportuniteRequest}">
+        <div class="mb-3">
+            <label class="form-label">Titre *</label>
+            <input type="text" class="form-control" th:field="*{titre}" required>
+            <small class="text-danger" th:if="${#fields.hasErrors('titre')}" th:errors="*{titre}"></small>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Description complète *</label>
+            <textarea class="form-control" rows="4" th:field="*{descriptionComplete}" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Montant (€) *</label>
+            <input type="number" step="0.01" class="form-control" th:field="*{montant}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Catégorie</label>
+            <select class="form-select" th:field="*{categorie}">
+                <option value="">-- Choisir --</option>
+                <option value="Informatique">Informatique</option>
+                <option value="BTP">BTP</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Formation">Formation</option>
+                <option value="Logistique">Logistique</option>
+                <option value="Autre">Autre</option>
+            </select>
+        </div>
+        <button type="submit" class="btn-submit" th:text="${opportuniteId != null ? 'Enregistrer les modifications' : 'Publier'}">Publier</button>
+    </form>
+    <a class="back" href="/client/dashboard">← Retour au dashboard</a>
+</div>
+</body>
+</html>

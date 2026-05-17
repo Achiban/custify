@@ -20,11 +20,14 @@ public class RoleBasedAuthenticationSuccessHandler implements AuthenticationSucc
                 .map(GrantedAuthority::getAuthority)
                 .collect(java.util.stream.Collectors.toSet());
 
-        if (authorities.contains("ROLE_ADMIN") || authorities.contains("ROLE_COMMERCIAL")) {
-            response.sendRedirect("/dashboard");
-            return;
+        if (authorities.contains("ROLE_ADMIN")) {
+            response.sendRedirect("/admin/dashboard");
+        } else if (authorities.contains("ROLE_COMMERCIAL")) {
+            response.sendRedirect("/commercial/dashboard");
+        } else if (authorities.contains("ROLE_CLIENT")) {
+            response.sendRedirect("/client/dashboard");
+        } else {
+            response.sendRedirect("/");
         }
-
-        response.sendRedirect("/dashboard");
     }
 }
