@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Custify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        *, body { font-family: 'Inter', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0f1e; color: #e2e8f0; }
+
+        /* ── Sidebar ─────────────────────────────────────────────────────── */
+        .sidebar { background: rgba(15,23,42,0.95); backdrop-filter: blur(20px); width: 260px; min-height: 100vh; position: fixed; top: 0; left: 0; padding: 32px 0; border-right: 1px solid rgba(255,255,255,0.06); z-index: 100; display: flex; flex-direction: column; }
+        .sidebar-logo { padding: 0 28px 36px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px; }
+        .sidebar-logo .brand { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #f43f5e, #be123c); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-logo .role { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .sidebar-nav { flex: 1; padding: 0 16px; }
+        .nav-label { font-size: 0.7rem; color: #475569; text-transform: uppercase; letter-spacing: 1.5px; padding: 0 12px; margin-bottom: 8px; margin-top: 16px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-radius: 12px; color: #94a3b8; text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s; margin-bottom: 4px; }
+        .nav-item:hover { background: rgba(244,63,94,0.1); color: #f43f5e; transform: translateX(4px); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(244,63,94,0.2), rgba(190,18,60,0.1)); color: #f43f5e; box-shadow: inset 3px 0 0 #f43f5e; }
+        .nav-item .icon { font-size: 1.1rem; }
+        .sidebar-footer { padding: 24px 16px 0; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 16px; }
+        .logout-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 16px; border-radius: 12px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.15); color: #f87171; font-weight: 600; cursor: pointer; transition: all 0.25s; text-align: left; }
+        .logout-btn:hover { background: #ef4444; color: #fff; }
+
+        /* ── Layout ──────────────────────────────────────────────────────── */
+        .main { margin-left: 260px; padding: 48px 50px; }
+        .page-header { margin-bottom: 40px; }
+        .page-header h1 { font-size: 2rem; font-weight: 800; color: #f8fafc; }
+        .page-header p { color: #64748b; margin-top: 6px; font-size: 0.95rem; }
+
+        /* ── Section labels ──────────────────────────────────────────────── */
+        .section-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #475569; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .section-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.05); }
+
+        /* ── KPI Cards ───────────────────────────────────────────────────── */
+        .kpi-grid { display: grid; gap: 18px; margin-bottom: 36px; }
+        .kpi-grid-4 { grid-template-columns: repeat(4, 1fr); }
+        .kpi-grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .kpi-grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+        .kpi-card { background: rgba(30,41,59,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 18px; padding: 24px 26px; position: relative; overflow: hidden; transition: transform 0.25s, box-shadow 0.25s; }
+        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(0,0,0,0.3); }
+        .kpi-card .accent-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 18px 0 0 18px; }
+
+        /* accent colours */
+        .accent-rose   .accent-bar { background: linear-gradient(180deg, #f43f5e, #be123c); }
+        .accent-sky    .accent-bar { background: linear-gradient(180deg, #38bdf8, #0284c7); }
+        .accent-emerald .accent-bar { background: linear-gradient(180deg, #34d399, #059669); }
+        .accent-amber  .accent-bar { background: linear-gradient(180deg, #fbbf24, #d97706); }
+        .accent-violet .accent-bar { background: linear-gradient(180deg, #a78bfa, #7c3aed); }
+        .accent-slate  .accent-bar { background: linear-gradient(180deg, #94a3b8, #475569); }
+        .accent-orange .accent-bar { background: linear-gradient(180deg, #fb923c, #ea580c); }
+        .accent-teal   .accent-bar { background: linear-gradient(180deg, #2dd4bf, #0d9488); }
+
+        .kpi-card .kpi-icon { font-size: 1.6rem; margin-bottom: 12px; opacity: 0.8; }
+        .accent-rose    .kpi-icon { color: #f43f5e; }
+        .accent-sky     .kpi-icon { color: #38bdf8; }
+        .accent-emerald .kpi-icon { color: #34d399; }
+        .accent-amber   .kpi-icon { color: #fbbf24; }
+        .accent-violet  .kpi-icon { color: #a78bfa; }
+        .accent-slate   .kpi-icon { color: #94a3b8; }
+        .accent-orange  .kpi-icon { color: #fb923c; }
+        .accent-teal    .kpi-icon { color: #2dd4bf; }
+
+        .kpi-card .kpi-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: #64748b; margin-bottom: 8px; }
+        .kpi-card .kpi-value { font-size: 2.4rem; font-weight: 800; color: #f8fafc; line-height: 1; }
+        .kpi-card .kpi-sub { font-size: 0.78rem; color: #475569; margin-top: 8px; }
+
+        /* ── Pipeline panel ──────────────────────────────────────────────── */
+        .pipeline-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 36px; }
+        .panel { background: rgba(30,41,59,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 18px; padding: 28px; }
+        .panel-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+        .panel-title.rose    { color: #f43f5e; }
+        .panel-title.emerald { color: #34d399; }
+        .panel-title.amber   { color: #fbbf24; }
+        .panel-title.teal    { color: #2dd4bf; }
+
+        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-row .sr-label { font-size: 0.88rem; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+        .stat-row .sr-val { font-size: 1.25rem; font-weight: 700; color: #f8fafc; }
+
+        /* ── Progress bar ────────────────────────────────────────────────── */
+        .progress-wrap { margin-top: 18px; }
+        .progress-wrap .pw-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: #64748b; margin-bottom: 6px; }
+        .progress { background: rgba(255,255,255,0.06); border-radius: 99px; height: 8px; }
+        .progress-bar { border-radius: 99px; }
+
+        /* ── Actions ─────────────────────────────────────────────────────── */
+        .action-box { background: rgba(30,41,59,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 18px; padding: 28px 32px; }
+        .action-box h2 { font-size: 1rem; font-weight: 700; color: #f43f5e; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-action { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f43f5e, #be123c); border: none; padding: 13px 26px; border-radius: 12px; color: #fff; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; }
+        .btn-action:hover { box-shadow: 0 8px 20px rgba(244,63,94,0.4); transform: translateY(-2px); color: #fff; }
+        .btn-secondary-action { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 13px 26px; border-radius: 12px; color: #cbd5e1; font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; }
+        .btn-secondary-action:hover { background: rgba(255,255,255,0.1); color: #fff; transform: translateY(-2px); }
+
+        /* ── Badge pill ──────────────────────────────────────────────────── */
+        .badge-pill { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+        .badge-green  { background: rgba(52,211,153,0.15); color: #34d399; }
+        .badge-orange { background: rgba(251,191,36,0.15); color: #fbbf24; }
+        .badge-red    { background: rgba(248,113,113,0.15); color: #f87171; }
+        .badge-blue   { background: rgba(56,189,248,0.15); color: #38bdf8; }
+
+        /* ── Taux conversion highlight ───────────────────────────────────── */
+        .conversion-box { background: rgba(52,211,153,0.07); border: 1px solid rgba(52,211,153,0.15); border-radius: 14px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+        .conversion-box .cb-label { font-size: 0.85rem; color: #64748b; font-weight: 500; }
+        .conversion-box .cb-value { font-size: 1.8rem; font-weight: 800; color: #34d399; }
+    </style>
+</head>
+<body>
+
+<!-- ════════════════════════ SIDEBAR ════════════════════════ -->
+<div class="sidebar">
+    <div class="sidebar-logo">
+        <div class="brand">Custify</div>
+        <div class="role">Espace Administrateur</div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-label">Navigation</div>
+        <a href="/admin/dashboard" class="nav-item active"><i class="icon bi bi-grid-1x2-fill"></i> Tableau de bord</a>
+        <a href="/admin/users" class="nav-item"><i class="icon bi bi-people-fill"></i> Équipe Interne</a>
+        <a href="/admin/clients" class="nav-item"><i class="icon bi bi-person-badge-fill"></i> Clients</a>
+        <div class="nav-label">Autres</div>
+        <a href="/" class="nav-item"><i class="icon bi bi-globe"></i> Catalogue public</a>
+    </nav>
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn"><i class="bi bi-box-arrow-left"></i> Déconnexion</button>
+        </form>
+    </div>
+</div>
+
+<!-- ════════════════════════ MAIN ════════════════════════════ -->
+<div class="main">
+
+    <!-- En-tête -->
+    <div class="page-header">
+        <h1><i class="bi bi-shield-lock-fill text-danger me-2"></i> Tableau de bord</h1>
+        <p>Vue globale des indicateurs clés de la plateforme Custify.</p>
+    </div>
+
+    <!-- ── Section : Utilisateurs ─────────────────────────────────────── -->
+    <div class="section-label"><i class="bi bi-people-fill me-1"></i> Utilisateurs</div>
+    <div class="kpi-grid kpi-grid-4">
+
+        <div class="kpi-card accent-rose">
+            <div class="accent-bar"></div>
+            <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
+            <div class="kpi-label">Total utilisateurs</div>
+            <div class="kpi-value" th:text="${totalUtilisateurs}">0</div>
+        </div>
+
+        <div class="kpi-card accent-sky">
+            <div class="accent-bar"></div>
+            <div class="kpi-icon"><i class="bi bi-person-badge-fill"></i></div>
+            <div class="kpi-label">Clients</div>
+            <div class="kpi-value" th:text="${totalClients}">0</div>
+        </div>
+
+        <div class="kpi-card accent-amber">
+            <div class="accent-bar"></div>
+            <div class="kpi-icon"><i class="bi bi-briefcase-fill"></i></div>
+            <div class="kpi-label">Commerciaux</div>
+            <div class="kpi-value" th:text="${totalCommerciaux}">0</div>
+        </div>
+
+        <div class="kpi-card accent-slate">
+            <div class="accent-bar"></div>
+            <div class="kpi-icon"><i class="bi bi-shield-fill-check"></i></div>
+            <div class="kpi-label">Administrateurs</div>
+            <div class="kpi-value" th:text="${totalAdmins}">0</div>
+        </div>
+
+    </div>
+
+    <!-- ── Section : Marketplace ──────────────────────────────────────── -->
+    <div class="section-label"><i class="bi bi-shop me-1"></i> Marketplace — Opportunités</div>
+    <div class="kpi-grid kpi-grid-4">
+
+        <div class="kpi-card accent-rose">
+            <div class="accent-bar"></div>
+            <div class="kpi-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+            <div class="kpi-label">Total opportunités</div>
+            <div class="kpi-value" th:text="${totalOpportunites}">0</div>
+        </div>
+
+        <div class="kpi-card accent-sky">
+            <div class="accent-bar"></div>
+            <div class="kpi-icon"><i class="bi bi-broadcast"></i></div>
+            <div class="kpi-label">Disponibles</div>
+            <div class="kpi-value" th:text="${totalOppDisponibles}">0</div>
+            <div class="kpi-sub">En attente de demande</div>
+        </div>
+
+        <div class="kpi-card accent-amber">
+            <div class="accent-bar"></div>
+            <div class="kpi-icon"><i class="bi bi-arrow-right-circle-fill"></i></div>
+            <div class="kpi-label">Attribuées</div>
+            <div class="kpi-value" th:text="${totalOppAttribuees}">0</div>
+            <div class="kpi-sub">En cours de validation</div>
+        </div>
+
+        <div class="kpi-card accent-emerald">
+            <div class="accent-bar"></div>
+            <div class="kpi-icon"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="kpi-label">Conclues</div>
+            <div class="kpi-value" th:text="${totalOppConclues}">0</div>
+            <div class="kpi-sub">Transactions finalisées</div>
+        </div>
+
+    </div>
+
+    <!-- ── Section : Pipeline commercial ─────────────────────────────── -->
+    <div class="section-label"><i class="bi bi-funnel-fill me-1"></i> Pipeline commercial</div>
+    <div class="pipeline-grid">
+
+        <!-- Demandes -->
+        <div class="panel">
+            <div class="panel-title amber"><i class="bi bi-envelope-open-fill me-2"></i>Demandes d'opportunité</div>
+
+            <div class="stat-row">
+                <span class="sr-label"><i class="bi bi-circle-fill text-secondary" style="font-size:0.55rem;"></i> Total</span>
+                <span class="sr-val" th:text="${totalDemandes}">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="sr-label"><i class="bi bi-hourglass-split" style="color:#fbbf24;"></i> En attente</span>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge-pill badge-orange" th:text="${totalDemandesEnAttente}">0</span>
+                </div>
+            </div>
+            <div class="stat-row">
+                <span class="sr-label"><i class="bi bi-check-circle-fill" style="color:#34d399;"></i> Acceptées</span>
+                <span class="badge-pill badge-green" th:text="${totalDemandesAcceptees}">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="sr-label"><i class="bi bi-x-circle-fill" style="color:#f87171;"></i> Refusées</span>
+                <span class="badge-pill badge-red" th:text="${totalDemandesRefusees}">0</span>
+            </div>
+
+            <!-- Taux de conversion -->
+            <div class="conversion-box">
+                <span class="cb-label"><i class="bi bi-graph-up-arrow me-1"></i> Taux de conversion</span>
+                <span class="cb-value" th:text="${tauxConversionDemandes} + '%'">0%</span>
+            </div>
+
+            <div class="progress-wrap">
+                <div class="pw-label">
+                    <span>Progression du pipeline</span>
+                    <span th:text="${tauxConversionDemandes} + '%'">0%</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-success"
+                         th:style="'width:' + ${tauxConversionDemandes} + '%'">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Affectations + Réunions -->
+        <div class="panel">
+            <div class="panel-title teal"><i class="bi bi-person-check-fill me-2"></i>Affectations commerciales</div>
+
+            <div class="stat-row">
+                <span class="sr-label"><i class="bi bi-circle-fill text-secondary" style="font-size:0.55rem;"></i> Total</span>
+                <span class="sr-val" th:text="${totalAffectations}">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="sr-label"><i class="bi bi-hourglass-split" style="color:#fbbf24;"></i> En attente client</span>
+                <span class="badge-pill badge-orange" th:text="${totalAffEnAttente}">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="sr-label"><i class="bi bi-check-circle-fill" style="color:#34d399;"></i> Acceptées</span>
+                <span class="badge-pill badge-green" th:text="${totalAffAcceptees}">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="sr-label"><i class="bi bi-x-circle-fill" style="color:#f87171;"></i> Refusées</span>
+                <span class="badge-pill badge-red" th:text="${totalAffRefusees}">0</span>
+            </div>
+
+            <!-- Réunions -->
+            <div class="mt-4">
+                <div class="panel-title" style="color:#a78bfa; font-size:0.82rem;"><i class="bi bi-calendar-event-fill me-2"></i>Réunions planifiées</div>
+                <div class="stat-row">
+                    <span class="sr-label"><i class="bi bi-camera-video-fill" style="color:#a78bfa;"></i> Total réunions</span>
+                    <span class="sr-val" th:text="${totalReunions}">0</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Actions rapides ─────────────────────────────────────────────── -->
+    <div class="action-box">
+        <h2><i class="bi bi-sliders me-2"></i> Actions rapides</h2>
+        <div class="d-flex flex-wrap gap-3">
+            <a href="/admin/users"    class="btn-action"><i class="bi bi-people-fill"></i> Gérer l'équipe →</a>
+            <a href="/admin/clients"  class="btn-secondary-action"><i class="bi bi-person-badge-fill"></i> Gérer les clients →</a>
+            <a href="/admin/users/nouveau" class="btn-secondary-action"><i class="bi bi-person-plus-fill"></i> Créer un utilisateur →</a>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

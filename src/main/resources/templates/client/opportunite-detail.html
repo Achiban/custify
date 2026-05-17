@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détail Opportunité - Custify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        *, body { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+        body { background: #0a0f1e; color: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 60px 20px; }
+        
+        .card-box { background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 40px; max-width: 700px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+        h1 { font-size: 1.8rem; font-weight: 800; color: #f8fafc; margin-top: 14px; margin-bottom: 8px; }
+        
+        .meta { color: #64748b; font-size: 0.9rem; margin-bottom: 24px; }
+        .badge-cat { display: inline-block; background: rgba(99,102,241,0.15); color: #818cf8; padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; border: 1px solid rgba(99,102,241,0.3); }
+        
+        .montant { font-size: 2.2rem; font-weight: 800; color: #34d399; margin: 24px 0; display: flex; align-items: center; gap: 8px; }
+        .desc { background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 24px; color: #cbd5e1; line-height: 1.7; margin-bottom: 30px; font-size: 1rem; }
+        
+        .btn-interest { background: linear-gradient(135deg, #818cf8, #6366f1); border: none; padding: 12px 28px; border-radius: 12px; color: #fff; font-weight: 700; font-size: 1rem; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-interest:hover { box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); transform: translateY(-2px); color: #fff; }
+        
+        .badge-info-custom { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); padding: 12px 24px; border-radius: 12px; font-weight: 600; }
+        .badge-status-custom { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); padding: 12px 24px; border-radius: 12px; font-weight: 600; }
+        
+        a.back { color: #818cf8; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s; }
+        a.back:hover { color: #6366f1; text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="card-box">
+    <span class="badge-cat" th:text="${opportunite.categorie != null ? opportunite.categorie : 'Autre'}"></span>
+    <h1 th:text="${opportunite.titre}">Titre</h1>
+    <div class="meta">
+        <i class="bi bi-person-fill"></i> Publié par <strong th:text="${opportunite.clientVendeur.nom + ' ' + (opportunite.clientVendeur.prenom != null ? opportunite.clientVendeur.prenom : '')}"></strong>
+        — <i class="bi bi-calendar3"></i> <span th:text="${#temporals.format(opportunite.datePublication, 'dd/MM/yyyy')}"></span>
+        — <i class="bi bi-flag-fill"></i> Statut: <strong th:text="${opportunite.statut}"></strong>
+    </div>
+    
+    <div class="montant">
+        <i class="bi bi-tag-fill" style="font-size: 1.8rem;"></i>
+        <span th:text="${opportunite.montant + ' €'}">0 €</span>
+    </div>
+    
+    <div class="desc" th:text="${opportunite.descriptionComplete}">Description complète</div>
+    
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <a class="back" href="/client/dashboard"><i class="bi bi-arrow-left"></i> Retour au dashboard</a>
+        
+        <!-- Actions pour exprimer son intérêt -->
+        <div th:if="${!estLeVendeur && opportunite.statut.name() == 'DISPONIBLE'}">
+            <!-- Si déjà intéressé -->
+            <span th:if="${dejaDemande}" class="badge-status-custom"><i class="bi bi-check-circle-fill"></i> Intérêt déjà manifesté</span>
+            
+            <!-- Si pas encore intéressé -->
+            <form th:if="${!dejaDemande}" th:action="@{/client/demandes}" method="post" style="display:inline">
+                <input type="hidden" name="opportuniteId" th:value="${opportunite.id}">
+                <button type="submit" class="btn-interest">
+                    <i class="bi bi-star-fill"></i> Je suis intéressé
+                </button>
+            </form>
+        </div>
+        <div th:if="${estLeVendeur}">
+            <span class="badge-info-custom"><i class="bi bi-info-circle-fill"></i> Votre opportunité</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

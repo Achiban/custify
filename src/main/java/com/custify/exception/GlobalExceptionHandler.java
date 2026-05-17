@@ -25,6 +25,12 @@ public class GlobalExceptionHandler {
                 .body(buildBody(HttpStatus.CONFLICT, ex.getMessage(), null));
     }
 
+    @ExceptionHandler(AccesNonAutoriseException.class)
+    public ResponseEntity<Map<String, Object>> handleAccesNonAutorise(AccesNonAutoriseException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(buildBody(HttpStatus.FORBIDDEN, ex.getMessage(), null));
+    }
+
     private Map<String, Object> buildBody(HttpStatus status, String message, Object details) {
         Map<String, Object> body = new HashMap<>();
         body.put("horodatage", Instant.now().toString());

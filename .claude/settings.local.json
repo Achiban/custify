@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn test *)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\ULTRAPC\\\\Documents\\\\GitHub\\\\custify\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)"
+    ]
+  }
+}

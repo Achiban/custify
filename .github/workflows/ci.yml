@@ -6,34 +6,38 @@ on:
   pull_request:
     branches: [ dev, main ]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-test:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Récupérer le code
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # 2️⃣ Installer Java
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
 
-      # 3️⃣ Cache Maven (plus rapide)
-      - name: Cache Maven packages
-        uses: actions/cache@v3
+      - name: Build & test
+        run: ./mvnw clean package
+
+      - name: Publish test report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          name: surefire-reports
+          path: target/surefire-reports/
+          if-no-files-found: ignore
 
-      # 4️⃣ Build + tests
-      - name: Build and run tests
-        run: mvn clean test
-
-      # 5️⃣ (Optionnel) Build JAR
-      - name: Package application
-        run: mvn clean package -DskipTests
+      - name: Upload WAR
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: custify-${{ github.sha }}
+          path: target/*.war

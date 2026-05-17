@@ -13,8 +13,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.CascadeType;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,23 +40,32 @@ public class Opportunite {
     @Column(nullable = false, length = 30)
     private StatutOpportunite statut;
 
-    @Column(name = "motif_cloture", length = 255)
-    private String motifCloture;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String descriptionComplete;
 
-    @Column(name = "date_creation", nullable = false)
-    private LocalDateTime dateCreation;
+    @Column(length = 100)
+    private String categorie;
+
+    @Column(name = "date_publication", nullable = false)
+    private java.time.LocalDateTime datePublication;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_client", nullable = false)
-    private Client client;
+    @JoinColumn(name = "id_vendeur", nullable = false)
+    private Utilisateur clientVendeur;
+
+    @OneToOne(mappedBy = "opportunite", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Conversation conversation;
 
     @PrePersist
     void prePersist() {
-        if (dateCreation == null) {
-            dateCreation = LocalDateTime.now();
+        if (datePublication == null) {
+            datePublication = java.time.LocalDateTime.now();
         }
         if (montant == null) {
-            montant = BigDecimal.ZERO;
+            montant = java.math.BigDecimal.ZERO;
+        }
+        if (statut == null) {
+            statut = StatutOpportunite.DISPONIBLE;
         }
     }
 }

@@ -233,3 +233,316 @@ button.secondary,
         width: 100%;
     }
 }
+
+/* Interactions UI overrides and helpers */
+.interactions {
+    --primary: #4fc3f7;
+    --muted-light: #b0bec5;
+    --panel-dark: #2a3f52;
+}
+
+.timeline {
+    position: relative;
+    padding: 12px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 18px;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: var(--primary);
+    border-radius: 2px;
+}
+
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 18px;
+    width: 14px;
+    height: 14px;
+    background-color: var(--primary);
+    border-radius: 50%;
+    border: 3px solid var(--panel);
+}
+
+.card.card-dark {
+    background-color: var(--panel-dark) !important;
+    border-color: rgba(58,74,92,0.6) !important;
+}
+
+/* Details card tweaks */
+.card.card-dark .card-header {
+    background-color: #354a5f !important;
+    color: #fff !important;
+    border-bottom: 1px solid rgba(58,74,92,0.6) !important;
+    padding: 12px 16px;
+}
+
+.card.card-dark .card-footer {
+    background-color: transparent !important;
+    border-top: 1px solid rgba(58,74,92,0.06) !important;
+    padding: 12px 16px;
+}
+
+.badge-interaction { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 999px; }
+
+/* Ensure buttons have consistent sizing in detail view */
+
+/* Dark theme button styles for interactions */
+.btn-primary {
+    background-color: #4fc3f7 !important;
+    border-color: #4fc3f7 !important;
+    color: #fff !important;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+.btn-primary:hover {
+    background-color: #39b5eb !important;
+    border-color: #39b5eb !important;
+}
+
+.btn-secondary {
+    background-color: #555 !important;
+    border: 1px solid #555 !important;
+    color: #fff !important;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+    background-color: #666 !important;
+    border-color: #666 !important;
+}
+
+.btn-outline-secondary {
+    background-color: transparent !important;
+    border: 1px solid #777 !important;
+    color: #b0bec5 !important;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+.btn-outline-secondary:hover {
+    background-color: #4fc3f7 !important;
+    border-color: #4fc3f7 !important;
+    color: #fff !important;
+}
+
+.btn-sm {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Header styling for interactions list */
+.container > .row > .col-md-12 > .d-flex {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 32px !important;
+    padding-bottom: 20px !important;
+    border-bottom: 1px solid rgba(79,195,247,0.1) !important;
+}
+
+.container > .row > .col-md-12 > .d-flex h2 {
+    margin: 0 !important;
+    font-size: 1.8rem !important;
+    color: #fff !important;
+}
+
+.container > .row > .col-md-12 > .d-flex p {
+    color: #9fb0bf !important;
+    margin: 4px 0 0 !important;
+}
+
+.container > .row > .col-md-12 > .d-flex .btn-primary {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .container > .row > .col-md-12 > .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 16px;
+    }
+    .container > .row > .col-md-12 > .d-flex .btn-primary {
+        align-self: flex-end;
+    }
+}
+
+/* Navigation buttons positioning for interactions */
+.container > .row > .col-md-12 > .mt-4 {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 32px !important;
+    padding-top: 20px;
+    border-top: 1px solid rgba(79,195,247,0.1);
+}
+
+.container > .row > .col-md-12 > .mt-4 .btn {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 600px) {
+    .container > .row > .col-md-12 > .mt-4 {
+        flex-direction: column;
+    }
+    .container > .row > .col-md-12 > .mt-4 .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+.btn-view { 
+    color: #4fc3f7; 
+    border: 1px solid #4fc3f7; 
+    background: transparent;
+    padding: 8px 12px;
+}
+.btn-view:hover { background: #4fc3f7; color: #fff; }
+.btn-edit { 
+    color: #f5b041; 
+    border: 1px solid #f5b041; 
+    background: transparent;
+    padding: 8px 12px;
+}
+.btn-edit:hover { background: #f5b041; color: #fff; }
+.btn-delete { 
+    color: #e74c3c; 
+    border: 1px solid #e74c3c; 
+    background: transparent;
+    padding: 8px 12px;
+}
+.btn-delete:hover { background: #e74c3c; color: #fff; }
+
+/* Ensure alerts inside dark cards are readable */
+.card.card-dark .alert {
+    background-color: rgba(255,255,255,0.03) !important;
+    color: #e6eef6 !important;
+    border: 1px solid rgba(255,255,255,0.03) !important;
+}
+
+/* Restore original behavior: first action stretches, other actions remain compact */
+.btn-group {
+    display: flex !important;
+    gap: 8px;
+    align-items: center;
+}
+.btn-group.w-100 {
+    display: flex !important;
+    gap: 12px;
+    align-items: center;
+}
+/* First direct .btn or link in the group expands to fill available space */
+.btn-group.w-100 > a.btn,
+.btn-group.w-100 > button.btn {
+    flex: 1 1 auto !important;
+}
+/* Keep forms / delete button compact */
+.btn-group.w-100 > form { flex: 0 0 auto; }
+.btn-group.w-100 > form .btn { flex: 0 0 auto; }
+
+/* Revert forcing large min-widths so look matches previous design */
+.card.card-dark .btn-edit { min-width: 0; }
+.card.card-dark .btn-delete { min-width: 0; }
+
+/* Ensure card-footer spacing is consistent */
+.card.card-dark .card-footer .btn { margin: 0 6px; }
+
+.badge-interaction { padding: 6px 10px; border-radius: 999px; font-weight: 700; font-size: 0.85rem; }
+.badge-info { background-color: rgba(52,152,219,0.12); color: #5dade2; }
+.badge-warning { background-color: rgba(243,156,18,0.12); color: #f5b041; }
+.badge-success { background-color: rgba(46,204,113,0.12); color: #58d68d; }
+.badge-secondary { background-color: rgba(149,165,166,0.08); color: #aab7b8; }
+
+/* Responsive tweaks for interactions lists */
+@media (max-width: 700px) {
+    .resume-cell { max-width: 140px; }
+    .timeline-item { padding-left: 22px; }
+    .timeline-item::after { left: -6px; }
+    table th, table td { padding: 10px; font-size: 0.9rem; }
+    .topbar, .auth-brand, .auth-card { padding: 16px; }
+}
+
+/* Dark theme button styles matching design system */
+.btn {
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-secondary {
+    background-color: #555 !important;
+    border: 1px solid #555 !important;
+    color: #fff !important;
+}
+.btn-secondary:hover {
+    background-color: #666 !important;
+    border-color: #666 !important;
+}
+
+.btn-outline-secondary {
+    background-color: transparent !important;
+    border: 1px solid #777 !important;
+    color: #b0bec5 !important;
+}
+.btn-outline-secondary:hover {
+    background-color: #4fc3f7 !important;
+    border-color: #4fc3f7 !important;
+    color: #fff !important;
+}
+
+/* Improve text contrast inside dark cards */
+.card.card-dark {
+    color: #e6eef6; /* base text color */
+}
+.card.card-dark h4, .card.card-dark h5, .card.card-dark h6 {
+    color: #ffffff;
+}
+.card.card-dark p, .card.card-dark .mb-0, .card.card-dark strong {
+    color: #e6eef6;
+}
+.card.card-dark .text-muted {
+    color: #9fb0bf !important;
+}
+.card.card-dark small {
+    color: #9fb0bf !important;
+}

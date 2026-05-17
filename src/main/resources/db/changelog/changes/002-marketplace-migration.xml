@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Add client fields to utilisateur -->
+    <changeSet id="002-add-client-fields" author="custify">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="utilisateur" columnName="prenom"/></not>
+        </preConditions>
+        <addColumn tableName="utilisateur">
+            <column name="prenom" type="VARCHAR(100)"/>
+            <column name="telephone" type="VARCHAR(30)"/>
+            <column name="entreprise" type="VARCHAR(150)"/>
+            <column name="adresse" type="VARCHAR(255)"/>
+            <column name="siret" type="VARCHAR(50)"/>
+            <column name="date_inscription" type="DATETIME"/>
+        </addColumn>
+    </changeSet>
+
+    <!-- Drop old legacy columns from utilisateur if they exist -->
+    <changeSet id="002-drop-legacy-utilisateur-columns" author="custify">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="utilisateur" columnName="actif"/>
+        </preConditions>
+        <dropColumn tableName="utilisateur" columnName="actif"/>
+    </changeSet>
+
+    <!-- Create secteur table -->
+    <changeSet id="002-create-secteur" author="custify">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="secteur"/></not>
+        </preConditions>
+        <createTable tableName="secteur">
+            <column name="id_secteur" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nom" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Create utilisateur_secteur join table -->
+    <changeSet id="002-create-utilisateur-secteur" author="custify">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="utilisateur_secteur"/></not>
+        </preConditions>
+        <createTable tableName="utilisateur_secteur">
+            <column name="id_user" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id_secteur" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="utilisateur_secteur" columnNames="id_user,id_secteur"/>
+        <addForeignKeyConstraint baseTableName="utilisateur_secteur" baseColumnNames="id_user"
+                                 referencedTableName="utilisateur" referencedColumnNames="id_user"
+                                 constraintName="fk_us_user"/>
+        <addForeignKeyConstraint baseTableName="utilisateur_secteur" baseColumnNames="id_secteur"
+                                 referencedTableName="secteur" referencedColumnNames="id_secteur"
+                                 constraintName="fk_us_secteur"/>
+    </changeSet>
+
+    <!-- Drop all old CRM and auto-generated tables in a single session with FK checks disabled -->
+    <changeSet id="002-drop-all-legacy-tables-v4" author="custify">
+        <sql>
+            SET FOREIGN_KEY_CHECKS=0;
+            DROP TABLE IF EXISTS affectation;
+            DROP TABLE IF EXISTS demande_opportunite;
+            DROP TABLE IF EXISTS interaction;
+            DROP TABLE IF EXISTS opportunite;
+            DROP TABLE IF EXISTS prospect;
+            DROP TABLE IF EXISTS client;
+            SET FOREIGN_KEY_CHECKS=1;
+        </sql>
+    </changeSet>
+
+    <!-- Create opportunite table (new marketplace version) -->
+    <changeSet id="002-create-opportunite-marketplace" author="custify">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="opportunite"/></not>
+        </preConditions>
+        <createTable tableName="opportunite">
+            <column name="id_opp" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="titre" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description_complete" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="montant" type="DECIMAL(12,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="categorie" type="VARCHAR(100)"/>
+            <column name="statut" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_publication" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id_vendeur" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="opportunite" baseColumnNames="id_vendeur"
+                                 referencedTableName="utilisateur" referencedColumnNames="id_user"
+                                 constraintName="fk_opp_vendeur"/>
+    </changeSet>
+
+    <!-- Create demande_opportunite table -->
+    <changeSet id="002-create-demande-opportunite" author="custify">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="demande_opportunite"/></not>
+        </preConditions>
+        <createTable tableName="demande_opportunite">
+            <column name="id_demande" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="id_demandeur" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id_opp" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_demande" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="statut" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="demande_opportunite" baseColumnNames="id_demandeur"
+                                 referencedTableName="utilisateur" referencedColumnNames="id_user"
+                                 constraintName="fk_demande_user"/>
+        <addForeignKeyConstraint baseTableName="demande_opportunite" baseColumnNames="id_opp"
+                                 referencedTableName="opportunite" referencedColumnNames="id_opp"
+                                 constraintName="fk_demande_opp"/>
+    </changeSet>
+
+    <!-- Create affectation table -->
+    <changeSet id="002-create-affectation" author="custify">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="affectation"/></not>
+        </preConditions>
+        <createTable tableName="affectation">
+            <column name="id_affectation" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="id_commercial" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id_beneficiaire" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id_opp" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_affectation" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="message_commercial" type="TEXT"/>
+            <column name="statut_client" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="affectation" baseColumnNames="id_commercial"
+                                 referencedTableName="utilisateur" referencedColumnNames="id_user"
+                                 constraintName="fk_affect_commercial"/>
+        <addForeignKeyConstraint baseTableName="affectation" baseColumnNames="id_beneficiaire"
+                                 referencedTableName="utilisateur" referencedColumnNames="id_user"
+                                 constraintName="fk_affect_beneficiaire"/>
+        <addForeignKeyConstraint baseTableName="affectation" baseColumnNames="id_opp"
+                                 referencedTableName="opportunite" referencedColumnNames="id_opp"
+                                 constraintName="fk_affect_opp"/>
+    </changeSet>
+
+</databaseChangeLog>
