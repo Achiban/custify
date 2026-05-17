@@ -55,7 +55,6 @@ class CommercialControllerTest {
         UserDetails userDetails = user("comm@mail.com");
 
         when(utilisateurRepository.findByEmail("comm@mail.com")).thenReturn(Optional.of(commercial));
-        when(utilisateurRepository.findByRole(Role.CLIENT)).thenReturn(List.of());
         when(demandeService.listerEnAttente()).thenReturn(List.of());
         when(affectationService.listerParCommercial(commercial)).thenReturn(List.of());
         when(reunionService.listerParCommercial(commercial)).thenReturn(List.of());

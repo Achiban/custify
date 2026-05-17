@@ -187,7 +187,8 @@ class SecurityAccessControlTest {
                             .param("nom", "Test")
                             .param("prenom", "User")
                             .param("email", "csrf.test@example.com")
-                            .param("motDePasse", "Password1!"))
+                            .param("motDePasse", "Password1!")
+                            .param("telephone", "0600000000"))
                     .andExpect(status().is3xxRedirection()); // redirect /login après inscription
         }
 
