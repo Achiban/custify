@@ -8,10 +8,12 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         *, body { font-family: 'Inter', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #0a0f1e; color: #e2e8f0; }
+        body { background: #0a0f1e; color: #e2e8f0; min-height: 100vh; overflow-x: hidden; }
+
+        /* ── Sidebar ──────────────────────────────────────────────────────── */
         .sidebar { background: rgba(15,23,42,0.95); backdrop-filter: blur(20px); width: 260px; min-height: 100vh; position: fixed; top: 0; left: 0; padding: 32px 0; border-right: 1px solid rgba(255,255,255,0.06); z-index: 100; display: flex; flex-direction: column; }
         .sidebar-logo { padding: 0 28px 36px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px; }
-        .sidebar-logo .brand { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #ea580c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-logo .brand { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #ea580c); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .sidebar-logo .role { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
         .sidebar-nav { flex: 1; padding: 0 16px; }
         .nav-label { font-size: 0.7rem; color: #475569; text-transform: uppercase; letter-spacing: 1.5px; padding: 0 12px; margin-bottom: 8px; margin-top: 16px; }
@@ -22,33 +24,73 @@
         .sidebar-footer { padding: 24px 16px 0; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 16px; }
         .logout-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 16px; border-radius: 12px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.15); color: #f87171; font-weight: 600; cursor: pointer; transition: all 0.25s; text-align: left; }
         .logout-btn:hover { background: #ef4444; color: #fff; }
-        .main { margin-left: 260px; padding: 50px; }
-        .page-header { margin-bottom: 40px; }
-        .page-header h1 { font-size: 2rem; font-weight: 800; color: #f8fafc; }
-        .page-header p { color: #64748b; margin-top: 8px; }
-        .card-box { background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 32px; }
-        .card-box h2 { font-size: 1.2rem; font-weight: 700; color: #f59e0b; margin-bottom: 24px; }
-        .search-toolbar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
-        .search-box { position: relative; flex: 1; min-width: 240px; }
-        .search-box input { width: 100%; background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.1); color: #f8fafc; border-radius: 12px; padding: 12px 18px 12px 44px; font-size: 0.95rem; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif; }
-        .search-box input:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.12); }
-        .search-box input::placeholder { color: #475569; }
-        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #475569; pointer-events: none; }
-        .filter-select { background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; border-radius: 12px; padding: 12px 16px; font-size: 0.9rem; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; transition: border-color 0.2s; }
-        .filter-select:focus { border-color: #f59e0b; }
-        .filter-select option { background: #1e293b; }
-        .result-count { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: #60a5fa; padding: 10px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
-        table { width: 100%; border-collapse: collapse; }
-        thead th { color: #64748b; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-        tbody td { padding: 18px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #cbd5e1; font-size: 0.95rem; }
+
+        /* ── Layout ───────────────────────────────────────────────────────── */
+        .main { margin-left: 260px; padding: 48px 50px; }
+
+        /* ── Header ───────────────────────────────────────────────────────── */
+        .page-header { margin-bottom: 44px; }
+        .page-header .section-tag { font-size: 0.85rem; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .page-header h1 { font-size: 2.2rem; font-weight: 800; color: #f8fafc; line-height: 1.2; }
+        .page-header h1 span { background: linear-gradient(135deg, #f59e0b, #ea580c); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-header .subtitle { color: #475569; margin-top: 8px; font-size: 0.95rem; }
+
+        /* ── Funnel / KPI cards ───────────────────────────────────────────── */
+        .funnel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; position: relative; }
+        .funnel-card { background: rgba(30,41,59,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 24px 30px; position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .funnel-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15); }
+        .funnel-card.active { border-color: #f59e0b; background: rgba(245,158,11,0.05); box-shadow: 0 0 0 1px #f59e0b; }
+        
+        .funnel-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+        .funnel-card.disponible::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+        .funnel-card.attribuee::before  { background: linear-gradient(90deg, #f59e0b, #ea580c); }
+        .funnel-card.conclue::before    { background: linear-gradient(90deg, #10b981, #059669); }
+
+        .funnel-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 16px; }
+        .disponible .funnel-icon { background: rgba(59,130,246,0.1); color: #60a5fa; }
+        .attribuee .funnel-icon  { background: rgba(245,158,11,0.1); color: #fbbf24; }
+        .conclue .funnel-icon    { background: rgba(16,185,129,0.1); color: #34d399; }
+
+        .funnel-label { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .funnel-value { font-size: 2.2rem; font-weight: 800; color: #f8fafc; line-height: 1; display: flex; align-items: baseline; gap: 8px; }
+        .funnel-sub { font-size: 0.8rem; color: #475569; margin-top: 8px; }
+
+        /* ── Data Panel ───────────────────────────────────────────────────── */
+        .panel { background: rgba(30,41,59,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        .panel-title { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #f59e0b; display: flex; align-items: center; gap: 10px; }
+        .panel-title::after { content: ''; width: 40px; height: 1px; background: rgba(245,158,11,0.3); }
+
+        .search-toolbar { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 24px; }
+        .search-box { position: relative; flex: 1; min-width: 280px; }
+        .search-box input { width: 100%; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 14px; padding: 12px 18px 12px 46px; font-size: 0.95rem; transition: all 0.3s; }
+        .search-box input:focus { border-color: #f59e0b; background: rgba(15,23,42,0.8); outline: none; box-shadow: 0 0 0 3px rgba(245,158,11,0.1); }
+        .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #475569; }
+
+        .filter-select { background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08); color: #94a3b8; border-radius: 14px; padding: 12px 16px; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
+        .filter-select:focus { border-color: #f59e0b; outline: none; }
+
+        .btn-action { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #94a3b8; border-radius: 12px; padding: 12px 18px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.25s; display: flex; align-items: center; gap: 8px; }
+        .btn-action:hover { background: rgba(245,158,11,0.1); color: #f59e0b; border-color: rgba(245,158,11,0.3); }
+        .btn-action.active { background: rgba(245,158,11,0.15); color: #fbbf24; border-color: #f59e0b; }
+
+        .result-count { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.15); color: #60a5fa; padding: 10px 18px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* ── Table Styling ────────────────────────────────────────────────── */
+        .table-wrap { overflow-x: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        thead th { color: #475569; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); text-align: left; }
+        tbody td { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #cbd5e1; font-size: 0.92rem; }
         tbody tr:hover td { background: rgba(255,255,255,0.02); }
-        .badge-dispo { display: inline-flex; padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
-        .montant { font-weight: 700; color: #34d399; }
-        .empty-msg, .no-results { text-align: center; padding: 48px; color: #475569; }
-        .no-results { display: none; }
-        .sort-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; border-radius: 10px; padding: 10px 14px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
-        .sort-btn:hover { background: rgba(245,158,11,0.1); color: #f59e0b; border-color: rgba(245,158,11,0.3); }
-        .sort-btn.active { background: rgba(245,158,11,0.15); color: #fbbf24; border-color: rgba(245,158,11,0.3); }
+        
+        .badge-pill { font-size: 0.72rem; font-weight: 700; padding: 4px 12px; border-radius: 99px; display: inline-flex; align-items: center; gap: 6px; }
+        .badge-disponible { background: rgba(59,130,246,0.1); color: #60a5fa; }
+        .badge-attribuee  { background: rgba(251,191,36,0.1); color: #fbbf24; }
+        .badge-conclue    { background: rgba(52,211,153,0.1); color: #34d399; }
+        
+        .montant { font-weight: 700; color: #34d399; font-size: 1rem; }
+        .empty-state { text-align: center; padding: 60px 0; color: #475569; }
+        .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.2; }
     </style>
 </head>
 <body>
@@ -59,12 +101,12 @@
     </div>
     <nav class="sidebar-nav">
         <div class="nav-label">Navigation</div>
-        <a href="/commercial/dashboard" class="nav-item"><i class="icon bi bi-grid-1x2-fill"></i> Tableau de bord</a>
-        <a href="/commercial/demandes" class="nav-item"><i class="icon bi bi-inbox-fill"></i> Demandes clients</a>
-        <a href="/commercial/opportunites" class="nav-item active"><i class="icon bi bi-briefcase-fill"></i> Opportunités</a>
-        <a href="/commercial/affectations" class="nav-item"><i class="icon bi bi-arrow-left-right"></i> Affectations</a>
-        <a href="/commercial/clients" class="nav-item"><i class="icon bi bi-people-fill"></i> Clients</a>
-        <a href="/commercial/reunions" class="nav-item"><i class="icon bi bi-calendar-event-fill"></i> Réunions</a>
+        <a href="/commercial/dashboard"   class="nav-item"><i class="icon bi bi-grid-1x2-fill"></i> Tableau de bord</a>
+        <a href="/commercial/demandes"    class="nav-item"><i class="icon bi bi-inbox-fill"></i> Demandes clients</a>
+        <a href="/commercial/opportunites"class="nav-item active"><i class="icon bi bi-briefcase-fill"></i> Opportunités</a>
+        <a href="/commercial/affectations"class="nav-item"><i class="icon bi bi-arrow-left-right"></i> Affectations</a>
+        <a href="/commercial/clients"     class="nav-item"><i class="icon bi bi-people-fill"></i> Clients</a>
+        <a href="/commercial/reunions"    class="nav-item"><i class="icon bi bi-calendar-event-fill"></i> Réunions</a>
         <div class="nav-label">Autres</div>
         <a href="/" class="nav-item"><i class="icon bi bi-globe"></i> Catalogue public</a>
     </nav>
@@ -74,48 +116,113 @@
         </form>
     </div>
 </div>
+
 <div class="main">
     <div class="page-header">
-        <h1><i class="bi bi-briefcase-fill"></i> Opportunités Disponibles</h1>
-        <p>Recherchez et filtrez les opportunités publiées sur la marketplace.</p>
+        <div class="section-tag"><i class="bi bi-briefcase"></i> Marketplace</div>
+        <h1>Suivi des <span>Opportunités</span></h1>
+        <div class="subtitle">Analysez la performance de votre entonnoir de vente en temps réel.</div>
     </div>
-    <div class="card-box">
-        <h2>Catalogue des opportunités</h2>
+
+    <!-- Funnel / KPI Section -->
+    <div class="funnel-grid">
+        <div class="funnel-card disponible" id="card-disponible" onclick="filterByStatut('DISPONIBLE')">
+            <div class="funnel-icon"><i class="bi bi-unlock-fill"></i></div>
+            <div class="funnel-label">Ouvertes</div>
+            <div class="funnel-value">
+                <span th:text="${countDispo}">0</span>
+                <small style="font-size: 0.9rem; color: #475569; font-weight: 500;">opps</small>
+            </div>
+            <div class="funnel-sub">Prêtes à être affectées</div>
+        </div>
+        <div class="funnel-card attribuee" id="card-attribuee" onclick="filterByStatut('ATTRIBUEE')">
+            <div class="funnel-icon"><i class="bi bi-person-fill-gear"></i></div>
+            <div class="funnel-label">En cours</div>
+            <div class="funnel-value">
+                <span th:text="${countAttrib}">0</span>
+                <small style="font-size: 0.9rem; color: #475569; font-weight: 500;">opps</small>
+            </div>
+            <div class="funnel-sub">Négociations actives</div>
+        </div>
+        <div class="funnel-card conclue" id="card-conclue" onclick="filterByStatut('CONCLUE')">
+            <div class="funnel-icon"><i class="bi bi-check-all"></i></div>
+            <div class="funnel-label">Gagnées</div>
+            <div class="funnel-value">
+                <span th:text="${countConclue}">0</span>
+                <small style="font-size: 0.9rem; color: #475569; font-weight: 500;">opps</small>
+            </div>
+            <div class="funnel-sub">Conversions finalisées</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">Détail du catalogue</div>
+            <span class="result-count" id="oppCount">0 opportunité</span>
+        </div>
+
         <div class="search-toolbar">
             <div class="search-box">
                 <i class="search-icon bi bi-search"></i>
-                <input type="text" id="searchOpp" placeholder="Rechercher par titre, vendeur, catégorie..." oninput="filterOpportunites()">
+                <input type="text" id="searchOpp" placeholder="Titre, catégorie, vendeur..." oninput="filterOpportunites()">
             </div>
             <select class="filter-select" id="filterCategorie" onchange="filterOpportunites()">
                 <option value="">Toutes les catégories</option>
             </select>
-            <button class="sort-btn" id="sortMontant" onclick="sortByMontant()"><i class="bi bi-currency-euro"></i> Trier par montant</button>
-            <span class="result-count" id="oppCount">0 opportunité</span>
+            <select class="filter-select" id="filterStatut" onchange="filterOpportunites()">
+                <option value="">Tous les statuts</option>
+                <option value="DISPONIBLE">Ouvertes</option>
+                <option value="ATTRIBUEE">En cours</option>
+                <option value="CONCLUE">Gagnées</option>
+            </select>
+            <button class="btn-action" id="sortMontant" onclick="sortByMontant()">
+                <i class="bi bi-arrow-down-up"></i> Montant
+            </button>
         </div>
-        <p th:if="${#lists.isEmpty(opportunitesDisponibles)}" class="empty-msg">Aucune opportunité disponible pour le moment.</p>
-        <div class="no-results" id="noResults"><i class="bi bi-exclamation-circle-fill"></i> Aucune opportunité ne correspond à cette recherche.</div>
-        <table th:unless="${#lists.isEmpty(opportunitesDisponibles)}" id="oppTable">
-            <thead>
-                <tr><th>Titre</th><th>Montant (€)</th><th>Catégorie</th><th>Vendeur</th><th>Entreprise</th><th>Statut</th></tr>
-            </thead>
-            <tbody>
-            <tr th:each="o : ${opportunitesDisponibles}"
-                th:attr="data-titre=${o.titre}, data-categorie=${o.categorie}, data-vendeur=${o.clientVendeur.nom}, data-montant=${o.montant}">
-                <td style="font-weight: 600; color: #f8fafc;" th:text="${o.titre}"></td>
-                <td class="montant" th:text="${o.montant + ' €'}"></td>
-                <td th:text="${o.categorie}"></td>
-                <td th:text="${o.clientVendeur.nom + ' ' + (o.clientVendeur.prenom != null ? o.clientVendeur.prenom : '')}"></td>
-                <td th:text="${o.clientVendeur.entreprise != null ? o.clientVendeur.entreprise : '—'}"></td>
-                <td><span class="badge-dispo">DISPONIBLE</span></td>
-            </tr>
-            </tbody>
-        </table>
+
+        <div class="table-wrap">
+            <div th:if="${#lists.isEmpty(toutesLesOpportunites)}" class="empty-state">
+                <i class="bi bi-folder-x"></i>
+                Aucune donnée à afficher
+            </div>
+            <div class="empty-state" id="noResults" style="display:none;">
+                <i class="bi bi-search"></i>
+                Aucun résultat pour ces filtres
+            </div>
+            <table th:unless="${#lists.isEmpty(toutesLesOpportunites)}" id="oppTable">
+                <thead>
+                    <tr>
+                        <th>Opportunité</th>
+                        <th>Valeur estimée</th>
+                        <th>Catégorie</th>
+                        <th>Client Vendeur</th>
+                        <th>Entreprise</th>
+                        <th>État</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr th:each="o : ${toutesLesOpportunites}"
+                    th:attr="data-titre=${o.titre}, data-categorie=${o.categorie}, data-vendeur=${o.clientVendeur.nom}, data-montant=${o.montant}, data-statut=${o.statut}">
+                    <td style="font-weight: 700; color: #f8fafc;" th:text="${o.titre}"></td>
+                    <td class="montant" th:text="${#numbers.formatDecimal(o.montant, 0, 'WHITESPACE', 2, 'COMMA') + ' €'}"></td>
+                    <td><span style="color: #64748b;" th:text="${o.categorie}"></span></td>
+                    <td th:text="${o.clientVendeur.nom + ' ' + (o.clientVendeur.prenom != null ? o.clientVendeur.prenom : '')}"></td>
+                    <td style="font-style: italic; color: #475569;" th:text="${o.clientVendeur.entreprise != null ? o.clientVendeur.entreprise : '—'}"></td>
+                    <td>
+                        <span th:if="${o.statut.name() == 'DISPONIBLE'}" class="badge-pill badge-disponible">OUVERTE</span>
+                        <span th:if="${o.statut.name() == 'ATTRIBUEE'}" class="badge-pill badge-attribuee">EN COURS</span>
+                        <span th:if="${o.statut.name() == 'CONCLUE'}" class="badge-pill badge-conclue">GAGNÉE</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-<script>
-let sortAsc = true;
 
-// Populate category filter dynamically
+<script>
+let sortAsc = false;
+
 window.onload = () => {
     const rows = document.querySelectorAll('#oppTable tbody tr');
     const categories = new Set();
@@ -131,36 +238,58 @@ window.onload = () => {
     filterOpportunites();
 };
 
+function filterByStatut(statut) {
+    const filterStatut = document.getElementById('filterStatut');
+    if (filterStatut.value === statut) {
+        filterStatut.value = "";
+    } else {
+        filterStatut.value = statut;
+    }
+    filterOpportunites();
+}
+
 function filterOpportunites() {
     const q = document.getElementById('searchOpp').value.toLowerCase();
     const cat = document.getElementById('filterCategorie').value.toLowerCase();
+    const statut = document.getElementById('filterStatut').value;
     const rows = document.querySelectorAll('#oppTable tbody tr');
+    
+    // UI active state for cards
+    document.querySelectorAll('.funnel-card').forEach(c => c.classList.remove('active'));
+    if(statut) document.getElementById('card-' + statut.toLowerCase()).classList.add('active');
+
     let count = 0;
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         const rowCat = (row.dataset.categorie || '').toLowerCase();
+        const rowStatut = row.dataset.statut;
+        
         const matchQ = text.includes(q);
         const matchCat = !cat || rowCat === cat;
-        const show = matchQ && matchCat;
+        const matchStatut = !statut || rowStatut === statut;
+        
+        const show = matchQ && matchCat && matchStatut;
         row.style.display = show ? '' : 'none';
         if (show) count++;
     });
+    
     document.getElementById('oppCount').textContent = count + ' opportunité' + (count > 1 ? 's' : '');
-    document.getElementById('noResults').style.display = (count === 0) ? 'block' : 'none';
+    document.getElementById('noResults').style.display = (count === 0 && rows.length > 0) ? 'block' : 'none';
 }
 
 function sortByMontant() {
     const tbody = document.querySelector('#oppTable tbody');
     const rows = Array.from(tbody.querySelectorAll('tr'));
+    sortAsc = !sortAsc;
+    
     rows.sort((a, b) => {
         const mA = parseFloat(a.dataset.montant) || 0;
         const mB = parseFloat(b.dataset.montant) || 0;
         return sortAsc ? mA - mB : mB - mA;
     });
+    
     rows.forEach(r => tbody.appendChild(r));
-    sortAsc = !sortAsc;
     const btn = document.getElementById('sortMontant');
-    btn.innerHTML = sortAsc ? '<i class="bi bi-arrow-up"></i> Trier par montant' : '<i class="bi bi-arrow-down"></i> Trier par montant';
     btn.classList.toggle('active');
 }
 </script>

@@ -106,14 +106,22 @@ class CommercialControllerTest {
     }
 
     @Test
-    void opportunitesShouldAddDisponiblesAndReturnView() {
-        when(opportuniteService.listerDisponibles()).thenReturn(List.of());
+    void opportunitesShouldAddStatsAndReturnView() {
+        Opportunite o1 = opportunite(1L);
+        o1.setStatut(StatutOpportunite.DISPONIBLE);
+        Opportunite o2 = opportunite(2L);
+        o2.setStatut(StatutOpportunite.ATTRIBUEE);
+        
+        when(opportuniteService.listerToutes()).thenReturn(List.of(o1, o2));
 
         ExtendedModelMap model = new ExtendedModelMap();
         String view = controller.opportunites(model);
 
         assertEquals("commercial/opportunites", view);
-        assertTrue(model.containsAttribute("opportunitesDisponibles"));
+        assertTrue(model.containsAttribute("toutesLesOpportunites"));
+        assertEquals(1L, model.get("countDispo"));
+        assertEquals(1L, model.get("countAttrib"));
+        assertEquals(0L, model.get("countConclue"));
     }
 
     @Test

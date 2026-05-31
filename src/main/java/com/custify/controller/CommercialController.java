@@ -135,7 +135,17 @@ public class CommercialController {
     // ── Page Opportunités ──────────────────────────────────────────────────────
     @GetMapping("/opportunites")
     public String opportunites(Model model) {
-        model.addAttribute("opportunitesDisponibles", opportuniteService.listerDisponibles());
+        List<com.custify.model.Opportunite> toutes = opportuniteService.listerToutes();
+        model.addAttribute("toutesLesOpportunites", toutes);
+        
+        long countDispo = toutes.stream().filter(o -> o.getStatut() == com.custify.model.enums.StatutOpportunite.DISPONIBLE).count();
+        long countAttrib = toutes.stream().filter(o -> o.getStatut() == com.custify.model.enums.StatutOpportunite.ATTRIBUEE).count();
+        long countConclue = toutes.stream().filter(o -> o.getStatut() == com.custify.model.enums.StatutOpportunite.CONCLUE).count();
+        
+        model.addAttribute("countDispo", countDispo);
+        model.addAttribute("countAttrib", countAttrib);
+        model.addAttribute("countConclue", countConclue);
+        
         return "commercial/opportunites";
     }
 
